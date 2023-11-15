@@ -5,7 +5,7 @@ type fruit_type =
     | Cherry
     | Grape
 
-type t
+type t = Objects.fruit
 
 val create : (float * float) -> fruit_type -> t
 

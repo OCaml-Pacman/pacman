@@ -1,6 +1,4 @@
-open Graphics
-
-type t
+type t = Objects.player
 
 type key = 
 | Up | Down | Left | Right | Action | Pause

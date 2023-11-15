@@ -1,6 +1,3 @@
-open Core
-
-
 type t
 
 val update : t -> t

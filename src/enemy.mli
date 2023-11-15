@@ -4,7 +4,7 @@ end
 
 module type Enemy =
 sig
-  type t 
+  type t = Objects.enemy
   include MoveLogic
   
   val get_sprite : t -> (int * int)
