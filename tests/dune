@@ -1,0 +1,13 @@
+(test
+  (name tests)
+  (preprocess (pps bisect_ppx))
+  (libraries
+    core
+    ounit2
+    enemy
+    fruit
+    game_map
+    game_state
+    player
+    render
+  ))

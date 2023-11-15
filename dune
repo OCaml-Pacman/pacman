@@ -1,0 +1,15 @@
+(rule
+  (target pacman.zip)
+  (deps 
+    src/enemy.mli
+    src/fruit.mli
+    src/game_map.mli
+    src/game_state.mli
+    src/player.mli
+    src/render.mli
+    src/dune
+    tests/tests.ml
+    tests/dune
+  )
+  (action
+    (run zip -R pacman.zip %{deps})))

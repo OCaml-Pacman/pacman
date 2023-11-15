@@ -1,0 +1,61 @@
+(library
+  (name enemy)
+  (modules enemy)
+  (libraries 
+    core)
+  (preprocess
+  (pps ppx_jane bisect_ppx)))
+
+
+(library
+  (name fruit)
+  (modules fruit)
+  (libraries 
+    core)
+  (preprocess
+  (pps ppx_jane bisect_ppx)))
+
+(library
+  (name game_map)
+  (modules game_map)
+  (libraries 
+    core)
+  (preprocess
+  (pps ppx_jane bisect_ppx)))
+ 
+(library
+  (name game_state)
+  (modules game_state)
+  (libraries 
+    core)
+  (preprocess
+  (pps ppx_jane bisect_ppx)))
+
+(library
+  (name player)
+  (modules player)
+  (libraries 
+    core)
+  (preprocess
+  (pps ppx_jane bisect_ppx)))
+
+(library
+  (name render)
+  (modules render)
+  (libraries 
+    core)
+  (preprocess
+  (pps ppx_jane bisect_ppx)))
+
+(executable
+  (name main)
+  (modules main)
+  (libraries
+    enemy
+    fruit
+    game_map
+    game_state
+    player
+    render
+    core
+    core_unix.command_unix))
