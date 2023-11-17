@@ -6,6 +6,8 @@ val sprite_sheet : Graphics.image
 
 val game_state : GameSate.t
 
-val draw_sprite : (int * int) -> uint
+(* Draw a sprite on canvas *)
+val draw_sprite : (int * int) -> unit
 
-val update : uint -> uint
+(* Update the whole game screen for one frame *)
+val update : game_state -> unit
