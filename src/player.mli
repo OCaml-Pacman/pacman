@@ -1,4 +1,10 @@
-type t = Objects.player
+type player = {
+    mutable position : (int * int);
+    mutable player_state : int;
+    sprite : (int * int);
+}
+
+type t = player
 
 type key = 
 | Up | Down | Left | Right | Action | Pause

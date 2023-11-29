@@ -1,10 +1,21 @@
+type enemy_type =
+| Red | Blue | Orange | Pink
+
+type enemy = {
+    mutable position : (int * int);
+    mutable enemy_state : int;
+
+    sprite : (int * int);
+    enemy_type: enemy_type
+}
+
 module type MoveLogic = sig
   val move : (float * float) -> Game_state.t -> (float * float)
 end
 
 module type Enemy =
 sig
-  type t = Objects.enemy
+  type t = enemy
   include MoveLogic
   
   val get_sprite : t -> (int * int)
@@ -14,3 +25,4 @@ sig
 end
 
 module MakeEnemy (_ : MoveLogic) : Enemy 
+
