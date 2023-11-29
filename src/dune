@@ -72,6 +72,7 @@
   (name main)
   (modules main)
   (libraries
+    graphics
     enemy
     fruit
     game_map
@@ -81,4 +82,5 @@
     render
     core
     stdlib
+    core_unix
     core_unix.command_unix))
