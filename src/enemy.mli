@@ -1,28 +1,31 @@
-type enemy_type =
-| Red | Blue | Orange | Pink
+type enemy_type = Red | Blue | Orange | Pink
+
+type enemy_state = Active | Scared | Dead
 
 type enemy = {
-    mutable position : (int * int);
-    mutable enemy_state : int;
-
-    sprite : (int * int);
-    enemy_type: enemy_type
+    mutable position : float * float;
+    mutable enemy_state : enemy_state;
+    mutable enemy_type: enemy_type;
+    mutable move_counter : int;
+    mutable move_direction : int;
+    mutable sprite : int * int; 
+    init_pos : float * float;
 }
 
-module type MoveLogic = sig
-  val move : (float * float) -> Game_state.t -> (float * float)
+module type SetEnemyType = sig
+  type t = enemy
+  val move :  t -> (float * float) -> Game_map.t -> t
+  val get_enemytype : enemy_type
+  val get_sprite : (int * int) list list
 end
 
 module type Enemy =
 sig
   type t = enemy
-  include MoveLogic
-  
-  val get_sprite : t -> (int * int)
   val get_pos : t -> (float * float)
   val create : (float * float) -> t
-  val update : t -> Game_state.t -> t option
+  val update : t -> (float * float) -> Game_map.t -> int -> t
 end
 
-module MakeEnemy (_ : MoveLogic) : Enemy 
+module MakeEnemy (_ : SetEnemyType) : Enemy 
 
