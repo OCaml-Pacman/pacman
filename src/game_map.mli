@@ -1,12 +1,11 @@
-
 type item =
-    | Wall of int
+    | Wall
     | Ground
     | Enemy
+    | Orb
+    | BigOrb
     | Player
     | Fruit
-
-type t
 
 (* Load the map from the data file *)
 val load : string -> bool
