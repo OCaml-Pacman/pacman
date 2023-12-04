@@ -67,12 +67,12 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
 
   let scared_speed = 0.1
     
-  let update (cur_e : t) (player_pos : (float * float)) (map: Game_map.t) (next_counter: int) : t = 
+  let update (cur_e : t) (player_pos : (float * float)) (next_counter: int) : t = 
     (* check cur_enemy state *)
     match cur_e.enemy_state with
     | Active -> 
           (* call move function to update position and direction *)
-          let moved_e = M.move cur_e player_pos map in
+          let moved_e = M.move cur_e player_pos in
           (* find the corrsponding sprite *)
           let animated_ind = next_counter mod 2 in 
           moved_e.sprite <- get_sprite_by_dir moved_e.move_direction animated_ind M.get_sprite;
@@ -85,7 +85,7 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
         let next_x = (fst cur_e.position) +. (dx *. scared_speed) in
         let next_y = (snd cur_e.position) +. (dy *. scared_speed) in
         match Game_map.get_location (next_x, next_y) with
-          | Game_map.Wall(_) -> aux ((d+1) mod 4)
+          | Game_map.Wall -> aux ((d+1) mod 4)
           | _ ->     
             cur_e.position <- (next_x, next_y);
             cur_e.move_direction <- d
@@ -110,14 +110,14 @@ module Set_red_enemy : SetEnemyType = struct
   let get_sprite = [[(0, 4); (1, 4)]; [(2, 4); (3, 4)]; [(4, 4); (5, 4)]; [(6, 4); (7, 4)]]
   let enemy_speed = 1.0
   (* TODO: Do I need input map here? use get_location instead *)
-  let move (cur_e : t) (player_pos : (float * float)) (map: Game_map.t) : t =  
+  let move (cur_e : t) (player_pos : (float * float)) : t =  
     let rec aux () = 
      let selected_dir = (Random.self_init (); Random.int 4) in 
      let dx, dy = match_dir_to_ind selected_dir in
      let next_x = (fst cur_e.position) +. (dx *. enemy_speed) in
      let next_y = (snd cur_e.position) +. (dy *. enemy_speed) in
       match Game_map.get_location (next_x, next_y) with
-      | Game_map.Wall(_) -> aux ()
+      | Game_map.Wall -> aux ()
       | _ ->     
         cur_e.position <- (next_x, next_y);
         cur_e.move_direction <- selected_dir;

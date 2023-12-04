@@ -14,7 +14,7 @@ type enemy = {
 
 module type SetEnemyType = sig
   type t = enemy
-  val move :  t -> (float * float) -> Game_map.t -> t
+  val move :  t -> (float * float) -> t
   val get_enemytype : enemy_type
   val get_sprite : (int * int) list list
 end
@@ -24,7 +24,7 @@ sig
   type t = enemy
   val get_pos : t -> (float * float)
   val create : (float * float) -> t
-  val update : t -> (float * float) -> Game_map.t -> int -> t
+  val update : t -> (float * float) -> int -> t
 end
 
 module MakeEnemy (_ : SetEnemyType) : Enemy 
