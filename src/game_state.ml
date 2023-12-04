@@ -10,6 +10,7 @@ type t = {
   enemys: Enemy.t list;
   score: int;
   state: state;
+  game_counter: int
 }
 
 let init_game_state (player:Player.t) (fruits:Fruit.t list) (enemys:Enemy.t list)  = 
@@ -19,6 +20,7 @@ let init_game_state (player:Player.t) (fruits:Fruit.t list) (enemys:Enemy.t list
     enemys = enemys;
     score = 0;
     state = Active;
+    game_counter = 0;
   }
 
 (* the inital coordinates to put the game objects *)
@@ -57,6 +59,7 @@ let get_ghost_score (ghosts_eaten: enemy_type) : int =
   | Blue -> 400 
   | Orange -> 800 
   | Pink -> 1600
+
 let new_game = 
   let new_player = Player.create init_pos.player in
   let new_red_enemy = Red_enemy.create init_pos.enemys in 
@@ -64,22 +67,17 @@ let new_game =
   init_game_state new_player [new_fruits;new_fruits] [new_red_enemy; new_red_enemy]
 
 
-let update_player (input_key:char) (player_state:Player.t) : Player.t = 
-
-let update_enemy = 
-
-
-let update_active = 
+let update_active cur_state = 
   let new_player = update_player input_key current_state.player in
-  let new_enemys = update_enemy current_state.enemys in
+  let new_enemys = Enemy.update cur_state.enemys cur_state.player.position cur_state.game_counter in
   let new_fruits = update_fruits current_state.fruits in
   let new_score = calculate_score current_state.score new_player new_fruits in
   { player = new_player; enemys = new_enemys; fruits = new_fruits; score = new_score }
 
 
-let update (input_key : char option) (current_state : t) : t =
+(* let update (input_key : char option) (current_state : t) : t =
   match current_state.state with 
   | Active ->
-  | Paused -> 
+  | Paused ->  *)
 
   

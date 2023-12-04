@@ -27,7 +27,7 @@ let match_dir_to_ind dir =
 
 module type SetEnemyType = sig
   type t = enemy
-  val move :  t -> (float * float) -> Game_map.t -> t
+  val move :  t -> (float * float) ->  t
   val get_enemytype : enemy_type
   val get_sprite : (int * int) list list
 end
@@ -38,7 +38,7 @@ sig
   
   val get_pos : t -> (float * float)
   val create : (float * float) -> t
-  val update : t -> (float * float) -> Game_map.t -> int -> t
+  val update : t -> (float * float) ->  t
 end
 
 module MakeEnemy (M : SetEnemyType) : Enemy = struct
@@ -67,7 +67,9 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
 
   let scared_speed = 0.1
     
-  let update (cur_e : t) (player_pos : (float * float)) (next_counter: int) : t = 
+  let update (cur_e : t) (player_pos : (float * float))  : t = 
+    let next_counter = cur_e.move_counter + 1 in
+    cur_e.move_counter <- next_counter;
     (* check cur_enemy state *)
     match cur_e.enemy_state with
     | Active -> 

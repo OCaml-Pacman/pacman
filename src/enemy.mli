@@ -24,7 +24,7 @@ sig
   type t = enemy
   val get_pos : t -> (float * float)
   val create : (float * float) -> t
-  val update : t -> (float * float) -> int -> t
+  val update : t -> (float * float) -> t
 end
 
 module MakeEnemy (_ : SetEnemyType) : Enemy 
