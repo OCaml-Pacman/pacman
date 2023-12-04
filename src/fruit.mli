@@ -1,11 +1,16 @@
 open Core
 
+type fruit = {
+    mutable position : (int * int);
+    sprite : (int * int);
+}
+
 type fruit_type = 
     | Apple
     | Cherry
     | Grape
 
-type t = Objects.fruit
+type t = fruit
 
 val create : (float * float) -> fruit_type -> t
 

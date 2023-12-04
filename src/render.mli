@@ -1,10 +1,10 @@
 open Core
-open GameState
+open Game_state
 open Graphics
 
 val sprite_sheet : Graphics.image
 
-val game_state : GameSate.t
+val game_state : Game_sate.t
 
 (* Draw a sprite on canvas *)
 val draw_sprite : (int * int) -> unit
