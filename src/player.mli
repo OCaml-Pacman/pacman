@@ -1,12 +1,12 @@
-type t = Objects.player
+type t
 
-type key = 
-| Up | Down | Left | Right | Action | Pause
+(* type key =
+   | Up | Down | Left | Right | Action | Pause *)
+type player_state
+type direction
+type key
 
-val create : (float * float) -> t
-
-val update : t -> Game_state.t -> t option
-
-val check_alive : t -> Game_state.t -> bool
-
-val get_sprite : t -> (int * int)
+val create : float * float -> t
+val update : t -> key -> t
+val check_alive : t -> bool
+val get_sprite : t -> int * int
