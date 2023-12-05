@@ -129,3 +129,9 @@ module Set_red_enemy : SetEnemyType = struct
 end
 
 module Red_enemy : Enemy = MakeEnemy(Set_red_enemy)
+
+module Blue_enemy : Enemy = MakeEnemy(Set_red_enemy)
+
+module Orange_enemy : Enemy = MakeEnemy(Set_red_enemy)
+
+module Pink_enemy : Enemy = MakeEnemy(Set_red_enemy)

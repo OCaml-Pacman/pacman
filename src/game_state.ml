@@ -7,13 +7,13 @@ type state =  Active | Win | Lose
 type t = {
   player: Player.t;
   fruits: Fruit.t list;
-  enemys: Enemy.t list;
+  enemys: enemy list;
   score: int;
   state: state;
   game_counter: int
 }
 
-let init_game_state (player:Player.t) (fruits:Fruit.t list) (enemys:Enemy.t list)  = 
+let init_game_state (player:Player.t) (fruits:Fruit.t list) (enemys:enemy list)  = 
   {
     player = player;
     fruits = fruits;
@@ -24,12 +24,10 @@ let init_game_state (player:Player.t) (fruits:Fruit.t list) (enemys:Enemy.t list
   }
 
 (* the inital coordinates to put the game objects *)
-let init_pos = 
-{
-  player = (0.0, 0.0);
-  fruits = (0.0, 0.0);
-  enemys = (50.0, 50.0);
-}
+let init_pos_player = (0.0, 0.0)
+let init_pos_fruits = (20, 20)
+let init_pos_enemy = (50, 50)
+
 (** [check_key key_char] checks if the given char [key_char] is a valid 
     movement. *)
 let check_key (key_char: char) : bool = 
@@ -60,18 +58,27 @@ let get_ghost_score (ghosts_eaten: enemy_type) : int =
   | Orange -> 800 
   | Pink -> 1600
 
+let get_enemy_update (enemy:enemy) (player_pos:float * float) : enemy = 
+  match enemy.enemy_type with
+  | Red -> Red_enemy.update enemy player_pos
+  | Blue -> Blue_enemy.update enemy player_pos
+  | Orange -> Orange_enemy.update enemy player_pos
+  | Pink -> Pink_enemy.update enemy player_pos
 let new_game = 
-  let new_player = Player.create init_pos.player in
-  let new_red_enemy = Red_enemy.create init_pos.enemys in 
-  let new_fruits = Fruit.create init_pos.fruits in 
+  let new_player = Player.create init_pos_player in
+  let new_red_enemy = Red_enemy.create init_pos_enemy in 
+  let new_fruits = Fruit.create init_pos_fruits in 
   init_game_state new_player [new_fruits;new_fruits] [new_red_enemy; new_red_enemy]
-
-
+  
+  
 let update_active cur_state = 
-  let new_player = update_player input_key current_state.player in
-  let new_enemys = Enemy.update cur_state.enemys cur_state.player.position cur_state.game_counter in
-  let new_fruits = update_fruits current_state.fruits in
-  let new_score = calculate_score current_state.score new_player new_fruits in
+  let cur_player = cur_state.player in 
+  let cur_enemys = cur_state.enemys in 
+  let updated_enemy = 
+     List.map cur_enemys ~f:(fun x -> get_enemy_update x cur_player.position) in
+  let next_enemys = Enemy.update cur_state.enemys cur_state.player.position in
+  let next_fruits = update_fruits current_state.fruits in
+  let next_score = calculate_score current_state.score new_player new_fruits in
   { player = new_player; enemys = new_enemys; fruits = new_fruits; score = new_score }
 
 
