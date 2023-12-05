@@ -11,8 +11,7 @@ let rec game_loop state =
     else None
   in
   let new_state = Game_state.update key state in
-  Render.render new_state; 
-  Core_unix.sleepf(); (* render time *)
+  Render.render new_state; (* render time *)
   game_loop new_state
 
 

@@ -115,9 +115,10 @@ module Set_red_enemy : SetEnemyType = struct
   let move (cur_e : t) (player_pos : (float * float)) : t =  
     let rec aux () = 
      let selected_dir = (Random.self_init (); Random.int 4) in 
+     let tempx, tempy = player_pos in
      let dx, dy = match_dir_to_ind selected_dir in
-     let next_x = (fst cur_e.position) +. (dx *. enemy_speed) in
-     let next_y = (snd cur_e.position) +. (dy *. enemy_speed) in
+     let next_x = (fst cur_e.position) +. (dx *. enemy_speed) +. 0.0 *. tempx in
+     let next_y = (snd cur_e.position) +. (dy *. enemy_speed) +. 0.0 *. tempy in
       match Game_map.get_location (next_x, next_y) with
       | Game_map.Wall -> aux ()
       | _ ->     
@@ -129,3 +130,9 @@ module Set_red_enemy : SetEnemyType = struct
 end
 
 module Red_enemy : Enemy = MakeEnemy(Set_red_enemy)
+
+module Blue_enemy : Enemy = MakeEnemy(Set_red_enemy)
+
+module Orange_enemy : Enemy = MakeEnemy(Set_red_enemy)
+
+module Pink_enemy : Enemy = MakeEnemy(Set_red_enemy)

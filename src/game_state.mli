@@ -4,4 +4,4 @@ type t
 val update : char option -> t -> t
 
 (* Load a game level *)
-val new_game: Game_map.t -> t
+val new_game: t

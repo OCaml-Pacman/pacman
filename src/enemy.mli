@@ -29,3 +29,10 @@ end
 
 module MakeEnemy (_ : SetEnemyType) : Enemy 
 
+module Red_enemy : Enemy 
+
+module Blue_enemy : Enemy 
+
+module Orange_enemy : Enemy 
+
+module Pink_enemy : Enemy 
