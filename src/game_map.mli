@@ -1,4 +1,3 @@
-open Core
 
 type item =
     | Wall of int
