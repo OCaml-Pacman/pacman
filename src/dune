@@ -37,6 +37,7 @@
   (modules player)
   (libraries 
     core
+    game_map)
   )
   (preprocess
   (pps ppx_jane bisect_ppx)))
