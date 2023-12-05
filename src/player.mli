@@ -1,18 +1,12 @@
-type player = {
-    mutable position : (int * int);
-    mutable player_state : int;
-    sprite : (int * int);
-}
+type t
 
-type t = player
+(* type key =
+   | Up | Down | Left | Right | Action | Pause *)
+type player_state
+type direction
+type key
 
-type key = 
-| Up | Down | Left | Right | Action | Pause
-
-val create : (float * float) -> t
-
-val update : t -> Game_state.t -> t option
-
-val check_alive : t -> Game_state.t -> bool
-
-val get_sprite : t -> (int * int)
+val create : float * float -> t
+val update : t -> key -> t
+val check_alive : t -> bool
+val get_sprite : t -> int * int
