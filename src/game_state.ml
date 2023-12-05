@@ -130,6 +130,12 @@ let check_scared_time_state cur_state =
     ) else
     (cur_state.enemys |> List.iter ~f:(fun enemy -> enemy.enemy_state <- Active);
     cur_state)
+  
+let check_win cur_state = 
+  if (Game_map.get_item_count Orb) = 0 then
+    (cur_state.state <- Win;
+    cur_state)
+  else cur_state
     
 
 let update_active input_key cur_state = 
@@ -152,6 +158,7 @@ let update_active input_key cur_state =
 
 let update (input_key : char option) (current_state : t) : t =
   let current_state = check_scared_time_state current_state in
+  let current_state = check_win current_state in
   match current_state.state with 
   | Active -> update_active input_key current_state
   | Lose -> new_game

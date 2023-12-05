@@ -17,3 +17,6 @@ val get_location : (float * float) -> item
 
 (* Update the item at given coordination *)
 val change_location : (float * float) -> item -> unit
+
+(* Count item number in the map *)
+val get_item_count: item -> int
