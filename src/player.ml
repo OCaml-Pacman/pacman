@@ -10,7 +10,6 @@ type player = {
   mutable move_counter : int;
   mutable move_direction : direction;
   mutable sprite : int * int;
-  init_pos : float * float;
 }
 
 type t = player
@@ -34,7 +33,7 @@ let direction_to_delta (direction : direction) =
   | Right -> (1.0, 0.0)
 
 let add_position (p1 : float * float) (p2 : float * float) : float * float =
-  (fst p1 +. fst p2, snd p1 +. snd p2)
+  (fst p1 +. (fst p2 *. player_speed), snd p1 +. (snd p2 *. player_speed))
 
 let update_sprite (player : player) : unit =
   match (player.move_direction, player.move_counter) with
@@ -63,7 +62,6 @@ let create (init_pos : float * float) : t =
     move_counter = 0;
     move_direction = Right;
     sprite = (0, 0);
-    init_pos;
   }
 
 let update (player : t) (key : key) : t =
