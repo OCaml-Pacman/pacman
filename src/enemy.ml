@@ -1,6 +1,4 @@
 open Core
-open Random
-open Game_map
 
 type enemy_type = Red | Blue | Orange | Pink
 

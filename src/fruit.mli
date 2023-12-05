@@ -1,21 +1,21 @@
-open Core
+type fruit_type = 
+    | Cherry
+    | Strawberry
+    | Orange
+
+type fruit_state = Eaten | Left
 
 type fruit = {
-    mutable position : (int * int);
-    sprite : (int * int);
+  mutable position : (float * float);
+  mutable sprite : (int * int);
+  mutable fruit_type: fruit_type;
+  mutable fruit_state: fruit_state
 }
-
-type fruit_type = 
-    | Apple
-    | Cherry
-    | Grape
 
 type t = fruit
 
 val create : (float * float) -> fruit_type -> t
 
-val update : t -> t Option.t
-
-val get_pos : t -> (float * float)
+val update : t -> t
 
 val get_sprite: t -> (int * int)

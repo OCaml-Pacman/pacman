@@ -132,7 +132,7 @@ let check_scared_time_state cur_state =
     cur_state)
   
 let check_win cur_state = 
-  if Game_map.get_item_count Orb = 0 then
+  if (Game_map.get_item_count Orb) = 0 then
     (cur_state.state <- Win;
     cur_state)
   else cur_state
