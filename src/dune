@@ -44,7 +44,8 @@
 (library
   (name game_map)
   (modules game_map)
-  (libraries 
+  (libraries
+    csv 
     core)
   (preprocess
   (pps ppx_jane bisect_ppx)))
@@ -60,16 +61,61 @@
   (preprocess
   (pps ppx_jane bisect_ppx)))
 
+
+; (library
+;   (name objects)
+;   (modules objects)
+;   (libraries 
+;     core)
+;   (preprocess
+;   (pps ppx_jane bisect_ppx)))
+
+; (library
+;   (name enemy)
+;   (modules enemy)
+;   (libraries 
+;     core
+;     objects
+;     game_state)
+;   (preprocess
+;   (pps ppx_jane bisect_ppx)))
+
+
+; (library
+;   (name fruit)
+;   (modules fruit)
+;   (libraries 
+;     core
+;     objects
+;     game_state)
+;   (preprocess
+;   (pps ppx_jane bisect_ppx)))
+
+; (library
+;   (name player)
+;   (modules player)
+;   (libraries 
+;     core
+;     objects
+;     game_state)
+;   (preprocess
+;   (pps ppx_jane bisect_ppx)))
+
 (executable
   (name main)
   (modules main)
   (libraries
-    enemy
-    fruit
+    ; game_state
     game_map
     game_state
     player
     render
+    ; graphics
+    ; enemy
+    ; fruit
+    ; objects
+    ; player
     core
     stdlib
+    core_unix
     core_unix.command_unix))

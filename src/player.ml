@@ -76,7 +76,7 @@ let update (player : t) (key : key) : t =
   in
   let new_pos = add_position player.position (direction_to_delta direction) in
   (match Game_map.get_location new_pos with
-  | Wall _ -> ()
+  | Wall -> ()
   | _ -> player.position <- new_pos);
   player.move_counter <- (player.move_counter + 1) mod player_sprite_num;
   update_sprite player;
