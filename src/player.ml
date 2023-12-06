@@ -57,9 +57,9 @@ let add_position (p1 : float * float) (p2 : float * float) : float * float =
   (fst p1 +. (fst p2 *. player_speed), snd p1 +. (snd p2 *. player_speed))
 
 (* let float_mod (x : float) (y : float) : float =
-  x -. (y *. Float.round_down (x /. y))
+  x -. (y *. Float.round_down (x /. y)) *)
 
-let get_in_map_position (position : float * float) : float * float =
+(* let get_in_map_position (position : float * float) : float * float =
   let x_max, y_max = Game_map.get_size () in
   (float_mod (fst position) x_max, float_mod (snd position) y_max) *)
 
@@ -97,19 +97,24 @@ let check_collsion direction pos =
   let (jx, jy) = (Float.add x 0.05, Float.add y 0.05) in
   let roundXPos = (Float.round x, y) in
   let roundYPos = (x, Float.round y) in
+  let roundPos = (Float.round x, Float.round y) in
   let ul = Game_map.get_location (jx, jy) in
   let ur = Game_map.get_location (Float.add jx 0.90,jy) in
   let dl = Game_map.get_location (jx,Float.add jy 0.90) in
   let dr = Game_map.get_location (Float.add jx 0.90, Float.add jy 0.90) in
   match direction, ul, ur, dl, dr with
-    | Up, Wall, _, _, _ -> roundYPos
-    | Up, _, Wall, _, _ -> roundYPos
-    | Down, _, _, Wall, _ -> roundYPos
-    | Down, _, _, _, Wall -> roundYPos
-    | Left, Wall, _, _, _ -> roundXPos
-    | Right, _, Wall, _, _ -> roundXPos
-    | Left, _, _, Wall, _ -> roundXPos
-    | Right, _, _, _, Wall -> roundXPos
+    | Up, Wall, Wall, _, _ -> roundYPos
+    | Up, Wall, _, _, _ -> roundPos
+    | Up, _, Wall, _, _ -> roundPos
+    | Down, _, Wall, Wall, _ -> roundYPos
+    | Down, _, _, _, Wall -> roundPos
+    | Down, _, _, Wall, _ -> roundPos
+    | Left, Wall, _, Wall, _ -> roundXPos
+    | Left, Wall, _, _, _ -> roundPos
+    | Left, _, _, Wall, _ -> roundPos
+    | Right, _, Wall, _, Wall -> roundXPos
+    | Right, _, Wall, _, _ -> roundPos
+    | Right, _, _, _, Wall -> roundPos
     | _ -> pos
   
 
