@@ -6,7 +6,7 @@ type item =
     | Orb
     | BigOrb
     | Player
-    | Fruit
+    | Fruit [@@deriving equal]
 
 let data : item array array ref = ref [|[|Wall|]|]
 
@@ -42,3 +42,9 @@ let get_location (x,y) : item =
 (* Update the item at given coordination *)
 let change_location (x,y) itm =
   (!data).(Float.to_int y).(Float.to_int x) <- itm
+
+
+let get_item_count (itm:item) : int = 
+  Array.fold !data ~init:0 ~f:(fun acc row ->
+    acc + (Array.count row ~f:(fun i -> equal_item i itm))
+  )

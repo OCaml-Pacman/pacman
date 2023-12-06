@@ -4,7 +4,7 @@
   (libraries
     core
     ounit2
-    ; enemy
+    enemy
     ; fruit
     game_map
     ; game_state
