@@ -114,17 +114,18 @@ let check_enemy_state (cur_player : Player.t) (cur_enemy : enemy)
 (* check whether the current position has object, normal object will add one points to total score.
    Big object will change enemy to scared state *)
 let check_object_overlap (cur_player : Player.t) (cur_state : t) =
-  let pos = cur_player.position in
-  let cur_obj = Game_map.get_location pos in
-  match cur_obj with
+  let (px,py) = cur_player.position in
+  let judgeP = (Float.add px 0.5, Float.add py 0.5) in
+  let obj = Game_map.get_location judgeP in
+  match obj with
   | Orb ->
       cur_state.score <- cur_state.score + 1;
-      change_location pos Ground
+      change_location judgeP Ground
   | BigOrb ->
       cur_state.enemys
       |> List.iter ~f:(fun enemy -> enemy.enemy_state <- Scared);
       cur_state.enemy_scared <- true;
-      change_location pos Ground
+      change_location judgeP Ground
   | _ -> ()
 
 (* check whether the current position has object, normal object will add one points to total score.

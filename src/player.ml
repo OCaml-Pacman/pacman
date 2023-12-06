@@ -56,12 +56,12 @@ let direction_to_delta (direction : direction) =
 let add_position (p1 : float * float) (p2 : float * float) : float * float =
   (fst p1 +. (fst p2 *. player_speed), snd p1 +. (snd p2 *. player_speed))
 
-let float_mod (x : float) (y : float) : float =
-  x -. (y *. Float.round_down (x /. y))
+(* let float_mod (x : float) (y : float) : float =
+  x -. (y *. Float.round_down (x /. y)) *)
 
-let get_in_map_position (position : float * float) : float * float =
+(* let get_in_map_position (position : float * float) : float * float =
   let x_max, y_max = Game_map.get_size () in
-  (float_mod (fst position) x_max, float_mod (snd position) y_max)
+  (float_mod (fst position) x_max, float_mod (snd position) y_max) *)
 
 let update_sprite (player : t) : unit =
   match (player.move_direction, player.move_counter) with
@@ -94,12 +94,13 @@ let create (init_pos : float * float) : t =
 
 let check_collsion direction pos = 
   let (x,y) = pos in
+  let (jx, jy) = (Float.add x 0.05, Float.add y 0.05) in
   let roundXPos = (Float.round x, y) in
   let roundYPos = (x, Float.round y) in
-  let ul = Game_map.get_location pos in
-  let ur = Game_map.get_location (Float.add x 0.99,y) in
-  let dl = Game_map.get_location (x,Float.add y 0.99) in
-  let dr = Game_map.get_location (Float.add x 0.99, Float.add y 0.99) in
+  let ul = Game_map.get_location (jx, jy) in
+  let ur = Game_map.get_location (Float.add jx 0.90,jy) in
+  let dl = Game_map.get_location (jx,Float.add jy 0.90) in
+  let dr = Game_map.get_location (Float.add jx 0.90, Float.add jy 0.90) in
   match direction, ul, ur, dl, dr with
     | Up, Wall, _, _, _ -> roundYPos
     | Up, _, Wall, _, _ -> roundYPos
