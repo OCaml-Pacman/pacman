@@ -92,6 +92,26 @@ let create (init_pos : float * float) : t =
     sprite = (0, 0);
   }
 
+let check_collsion direction pos = 
+  let (x,y) = pos in
+  let roundXPos = (Float.round x, y) in
+  let roundYPos = (x, Float.round y) in
+  let ul = Game_map.get_location pos in
+  let ur = Game_map.get_location (Float.add x 0.99,y) in
+  let dl = Game_map.get_location (x,Float.add y 0.99) in
+  let dr = Game_map.get_location (Float.add x 0.99, Float.add y 0.99) in
+  match direction, ul, ur, dl, dr with
+    | Up, Wall, _, _, _ -> roundYPos
+    | Up, _, Wall, _, _ -> roundYPos
+    | Down, _, _, Wall, _ -> roundYPos
+    | Down, _, _, _, Wall -> roundYPos
+    | Left, Wall, _, _, _ -> roundXPos
+    | Right, _, Wall, _, _ -> roundXPos
+    | Left, _, _, Wall, _ -> roundXPos
+    | Right, _, _, _, Wall -> roundXPos
+    | _ -> pos
+  
+
 let update (player : t) (key : key) : t =
   let direction =
     match key_to_direction key with
@@ -100,13 +120,8 @@ let update (player : t) (key : key) : t =
         dir
     | None -> player.move_direction
   in
-  let new_pos =
-    add_position player.position (direction_to_delta direction)
-    |> get_in_map_position
-  in
-  (match Game_map.get_location new_pos with
-  | Wall -> ()
-  | _ -> player.position <- new_pos);
+  let new_pos = add_position player.position (direction_to_delta direction) in
+  player.position <- check_collsion direction new_pos;
   player.move_counter <- (player.move_counter + 1) mod player_sprite_num;
   update_sprite player;
   (* print_endline (string_of_player player); *)
