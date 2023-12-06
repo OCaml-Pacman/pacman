@@ -1,17 +1,15 @@
 open Core
-type item =
-    | Wall
-    | Ground
-    | Enemy
-    | Orb
-    | BigOrb
-    | Player
-    | Fruit [@@deriving equal]
 
-let data : item array array ref = ref [|[|Wall|]|]
+type item = Wall | Ground | Enemy | Orb | BigOrb | Player | Fruit
+[@@deriving equal]
+
+let data : item array array ref = ref [| [| Wall |] |]
+
+let raw_data = ref [| [| Wall |] |]
 
 let load filename =
-  let f_map x = match x with
+  let f_map x =
+    match x with
     | "#" -> Wall
     | "." -> Orb
     | "*" -> BigOrb
@@ -23,28 +21,88 @@ let load filename =
     | _ -> failwith "Invalid Map"
   in
   try
-    data := Csv.load filename |> List.map ~f:(Array.of_list) 
-            |> Array.of_list |> Array.map ~f:(Array.map ~f:f_map);
+    data :=
+      Csv.load filename |> List.map ~f:Array.of_list |> Array.of_list
+      |> Array.map ~f:(Array.map ~f:f_map);
+    raw_data := !data;
     true
-  with
-    _ -> false
+  with _ -> false
 
+let reload () = 
+  data := !raw_data
 
-let get_size _ : (float * float) =
+let get_size _ : float * float =
   let x_max = Float.of_int (Array.get !data 0 |> Array.length) in
   let y_max = Float.of_int (Array.length !data) in
-    (x_max, y_max)
+  (x_max, y_max)
 
 (* Get the item at given coordination *)
-let get_location (x,y) : item =
-  (!data).(Float.to_int y).(Float.to_int x)
+let get_location (x, y) : item = !data.(Float.to_int y).(Float.to_int x)
 
 (* Update the item at given coordination *)
-let change_location (x,y) itm =
-  (!data).(Float.to_int y).(Float.to_int x) <- itm
+let change_location (x, y) itm = !data.(Float.to_int y).(Float.to_int x) <- itm
 
-
-let get_item_count (itm:item) : int = 
+let get_item_count (itm : item) : int =
   Array.fold !data ~init:0 ~f:(fun acc row ->
-    acc + (Array.count row ~f:(fun i -> equal_item i itm))
+      acc + Array.count row ~f:(fun i -> equal_item i itm))
+
+
+let find_player () =
+  let found = ref None in
+  Array.iteri data.contents ~f:(fun y row ->
+      Array.iteri row ~f:(fun x item ->
+          if equal_item item Player then
+            found := Some (Float.of_int x, Float.of_int y)));
+  !found
+
+let find_enemies () =
+  let enemies = ref [] in
+  Array.iteri data.contents ~f:(fun y row ->
+      Array.iteri row ~f:(fun x item ->
+          if equal_item item Enemy then
+            enemies := (Float.of_int x, Float.of_int y) :: !enemies));
+  !enemies
+
+let find_fruits () =
+  let fruits = ref [] in
+  Array.iteri data.contents ~f:(fun y row ->
+      Array.iteri row ~f:(fun x item ->
+          if equal_item item Fruit then
+            fruits := (Float.of_int x, Float.of_int y) :: !fruits));
+  !fruits
+
+let find_random_empty () =
+  let empty_spaces = ref [] in
+  Array.iteri data.contents ~f:(fun y row ->
+      Array.iteri row ~f:(fun x item ->
+          if equal_item item Ground then empty_spaces := (x, y) :: !empty_spaces));
+  match !empty_spaces with
+  | [] -> None
+  | _ ->
+      Some
+        (let x, y = List.random_element_exn !empty_spaces in
+         (Float.of_int x, Float.of_int y))
+
+let remove_player () =
+  Array.iteri data.contents ~f:(fun y row ->
+    Array.iteri row ~f:(fun x item ->
+      if equal_item item Player then
+        data.contents.(y).(x) <- Ground
+    )
+  )
+
+let remove_enemies () =
+  Array.iteri data.contents ~f:(fun y row ->
+    Array.iteri row ~f:(fun x item ->
+      if equal_item item Enemy then
+        data.contents.(y).(x) <- Ground
+    )
+  )
+
+let remove_fruits () =
+  Array.iteri data.contents ~f:(fun y row ->
+    Array.iteri row ~f:(fun x item ->
+      if equal_item item Fruit then
+        data.contents.(y).(x) <- Ground
+    )
   )

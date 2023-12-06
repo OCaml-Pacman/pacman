@@ -1,32 +1,27 @@
 (library
-  (name game_map)
-  (modules game_map)
-  (libraries
-    csv 
-    core)
-  (preprocess
+ (name game_map)
+ (modules game_map)
+ (libraries csv core)
+ (preprocess
   (pps ppx_jane bisect_ppx)))
- 
 
 (library
-  (name render)
-  (modules render)
-  (libraries 
-    core
-    ; objects
-    ; game_state
-    game_map
-    imagelib.unix
-    graphics
-    )
-  (preprocess
-    (pps ppx_jane bisect_ppx)))
-
+ (name render)
+ (modules render)
+ (libraries
+  core
+  ; objects
+  ; game_state
+  game_map
+  imagelib.unix
+  graphics)
+ (preprocess
+  (pps ppx_jane bisect_ppx)))
 
 (library
  (name game_state)
  (modules game_state)
- (libraries core game_map player enemy fruit)
+ (libraries core game_map player enemy fruit render)
  (preprocess
   (pps ppx_jane bisect_ppx)))
 

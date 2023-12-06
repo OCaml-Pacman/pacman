@@ -10,6 +10,8 @@
     src/dune
     tests/tests.ml
     tests/dune
+    map.csv
+    sprite.png
   )
   (action
     (run zip -R pacman.zip %{deps})))

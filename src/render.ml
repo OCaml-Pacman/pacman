@@ -2,9 +2,9 @@ open Game_map
 
 let wall_sprite = (13, 9)
 let ground_sprite = (13,3)
-let enemy_sprite = (0,4)
 let orb_sprite = (13,1)
 let big_orb_sprite = (13,2)
+let enemy_sprite = (0,4)
 let player_sprite = (0,0)
 let fruit_sprite = (2,3);;
 
@@ -40,7 +40,12 @@ let convert_imagelib_to_graphics (img : Image.image) =
   done;
   Graphics.make_image g_img
 
-let load_sprite path = sprite := convert_imagelib_to_graphics @@ ImageLib_unix.openfile path
+let load_sprite path = 
+  try
+    sprite := convert_imagelib_to_graphics @@ ImageLib_unix.openfile path;
+    true
+  with 
+    _ -> false
 
 let sub_image sheet x_pos y_pos width height =
   let sheet_matrix = Graphics.dump_image sheet in
