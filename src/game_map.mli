@@ -7,8 +7,13 @@ type item =
     | Player
     | Fruit
 
+type t
+
 (* Load the map from the data file *)
 val load : string -> bool
+
+(* Load the map from given map, only use in test *)
+val load_from_data : item array array ref -> unit
 
 val reload : unit -> unit
 
