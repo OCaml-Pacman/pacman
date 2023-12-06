@@ -13,8 +13,7 @@ type enemy = {
     mutable sprite : int * int; 
     init_pos : float * float;
 }
-
-
+type direction = Up | Down | Left | Right
 let match_dir_to_ind dir = 
   match dir with
   | 0 -> (1.0, 0.0)
@@ -22,6 +21,42 @@ let match_dir_to_ind dir =
   | 2 -> (0.0, 1.0)
   | 3 -> (0.0, -1.0)
   | _ -> failwith "invalid int of direction"
+
+let helper_dir int_direction = 
+  match int_direction with
+  | 0 -> Up
+  | 1 -> Down
+  | 2 -> Right
+  | 3 -> Left
+  | _ -> failwith "invalid int of direction"
+
+
+let check_collsion int_direction pos = 
+  let direction = helper_dir int_direction in 
+  let (x,y) = pos in
+  let (jx, jy) = (Float.add x 0.05, Float.add y 0.05) in
+  let roundXPos = (Float.round x, y) in
+  let roundYPos = (x, Float.round y) in
+  let roundPos = (Float.round x, Float.round y) in
+  let ul = Game_map.get_location (jx, jy) in
+  let ur = Game_map.get_location (Float.add jx 0.90,jy) in
+  let dl = Game_map.get_location (jx,Float.add jy 0.90) in
+  let dr = Game_map.get_location (Float.add jx 0.90, Float.add jy 0.90) in
+  match direction, ul, ur, dl, dr with
+    | Up, Wall, Wall, _, _ -> roundYPos
+    | Up, Wall, _, _, _ -> roundPos
+    | Up, _, Wall, _, _ -> roundPos
+    | Down, _, Wall, Wall, _ -> roundYPos
+    | Down, _, _, _, Wall -> roundPos
+    | Down, _, _, Wall, _ -> roundPos
+    | Left, Wall, _, Wall, _ -> roundXPos
+    | Left, Wall, _, _, _ -> roundPos
+    | Left, _, _, Wall, _ -> roundPos
+    | Right, _, Wall, _, Wall -> roundXPos
+    | Right, _, Wall, _, _ -> roundPos
+    | Right, _, _, _, Wall -> roundPos
+    | _ -> pos
+  
 
 module type SetEnemyType = sig
   type t = enemy
@@ -87,7 +122,7 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
         match Game_map.get_location (next_x, next_y) with
           | Game_map.Wall -> aux ((d+1) mod 4)
           | _ ->     
-            cur_e.position <- (next_x, next_y);
+            cur_e.position <- check_collsion d (next_x, next_y);
             cur_e.move_direction <- d
       in aux cur_e.move_direction;
       (* find the corrsponding sprite *)
@@ -107,23 +142,43 @@ module Set_red_enemy : SetEnemyType = struct
   type t = enemy
   (* Red enemy move randomly  *)
   let get_enemytype = Red
-  let get_sprite = [[(0, 4); (1, 4)]; [(2, 4); (3, 4)]; [(4, 4); (5, 4)]; [(6, 4); (7, 4)]]
+  let get_sprite = [[(0, 4); (1, 4)]; [(2, 4); (3, 4)];  [(6, 4); (7, 4)]; [(4, 4); (5, 4)]]
   let enemy_speed = 0.04
-  (* TODO: Do I need input map here? use get_location instead *)
+  let change_counter = ref 1
   let move (cur_e : t) (player_pos : (float * float)) : t =  
     let rec aux () = 
-     let selected_dir = (Random.self_init (); Random.int 4) in 
-     let tempx, tempy = player_pos in
-     let dx, dy = match_dir_to_ind selected_dir in
-     let next_x = (fst cur_e.position) +. (dx *. enemy_speed) +. 0.0 *. tempx in
-     let next_y = (snd cur_e.position) +. (dy *. enemy_speed) +. 0.0 *. tempy in
-      match Game_map.get_location (next_x, next_y) with
+      let selected_dir = (Random.self_init (); Random.int 4) in 
+      let tempx, tempy = player_pos in
+      let dx, dy = match_dir_to_ind selected_dir in
+      let check_x = (fst cur_e.position) +. dx in
+      let check_y = (snd cur_e.position) +. dy in 
+       match Game_map.get_location (check_x, check_y) with
+       | Game_map.Wall -> aux ()
+       | _ ->
+        let next_x = (fst cur_e.position) +. (dx *. enemy_speed) +. 0.0 *. tempx in
+        let next_y = (snd cur_e.position) +. (dy *. enemy_speed) +. 0.0 *. tempy in     
+         cur_e.position <- check_collsion selected_dir (next_x, next_y);
+         cur_e.move_direction <- selected_dir;
+         cur_e
+       in
+    let d = cur_e.move_direction in
+    let dx, dy = match_dir_to_ind d in
+    let check_x = (fst cur_e.position) +. dx in
+    let check_y = (snd cur_e.position) +. dy in
+    if (!change_counter) mod 30 = 0 then 
+      (change_counter := 1;
+      aux ())
+    else 
+    (
+      change_counter := !change_counter + 1;  
+      match Game_map.get_location (check_x, check_y) with
       | Game_map.Wall -> aux ()
-      | _ ->     
-        cur_e.position <- (next_x, next_y);
-        cur_e.move_direction <- selected_dir;
-        cur_e
-    in aux ()   
+      | _ ->
+        let next_x = (fst cur_e.position) +. (dx *. enemy_speed) in
+        let next_y = (snd cur_e.position) +. (dy *. enemy_speed) in
+        cur_e.position <- check_collsion d (next_x, next_y);
+        cur_e)
+    
   
 end
 
