@@ -1,6 +1,6 @@
 open Core
 open OUnit2
-(* open Enemy *)
+open Enemy
 open Player
 
 (* Player Test *)
@@ -40,18 +40,21 @@ let player_tests =
    | Failure "invalid int of direction" -> ()
    | _ -> assert false *)
 
-(* let test_update_enemy _ =
-  let test_enemy1 = Red_enemy.create (5.0, 5.0) in
-  let updated_enemy = Red_enemy.update test_enemy1 (10.0, 10.0) in
-  assert_equal 1 @@ updated_enemy.move_counter *)
+let test_update_enemy _ =
+  let test_map_data = ref [| [| Game_map.Ground; Game_map.Ground; Game_map.Ground; Game_map.Ground |] |]in 
+  Game_map.load_from_data test_map_data;
+  let test_enemy1 = Red_enemy.create (0.0, 0.0) in
+  assert_equal 0 @@ test_enemy1.move_counter
+  (* let updated_enemy = Red_enemy.update test_enemy1 (3.0, 0.0) in *)
+
 
 (* let test_new_game = new_game
    let test_game_win _ =
      test_new_game.state <- Win;
      let test_game_next = update (Some 'w') test_new_game in
      assert_equal 0 @@ test_game_next.score *)
-(* let enemy_tests =
-  "Enemy Tests" >: test_list [ "test distribution" >:: test_update_enemy ] *)
+let enemy_tests =
+  "Enemy Tests" >: test_list [ "test enemy" >:: test_update_enemy ]
 
-let series = "Pacman Tests" >::: [ player_tests ]
+let series = "Pacman Tests" >::: [ player_tests; enemy_tests ]
 let () = run_test_tt_main series
