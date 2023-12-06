@@ -1,10 +1,15 @@
-type t
+type player_state = Alive | Dead
+type direction = Up | Down | Left | Right
+type key = None | Key of char
 
-(* type key =
-   | Up | Down | Left | Right | Action | Pause *)
-type player_state
-type direction
-type key
+type t = {
+  mutable position : float * float;
+  mutable player_state : player_state;
+  mutable move_counter : int;
+  mutable move_direction : direction;
+  mutable sprite : int * int;
+}
+
 
 val create : float * float -> t
 val update : t -> key -> t
