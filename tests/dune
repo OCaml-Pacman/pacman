@@ -4,10 +4,10 @@
   (libraries
     core
     ounit2
-    enemy
-    fruit
+    ; enemy
+    ; fruit
     game_map
-    game_state
-    player
+    ; game_state
+    ; player
     render
   ))

@@ -26,6 +26,9 @@
     core
     ; objects
     ; game_state
+    game_map
+    imagelib.unix
+    graphics
     )
   (preprocess
   (pps ppx_jane bisect_ppx)))
@@ -70,19 +73,19 @@
 ;   (preprocess
 ;   (pps ppx_jane bisect_ppx)))
 
-(executable
-  (name main)
-  (modules main)
-  (libraries
-    ; game_state
-    game_map
-    render
-    ; graphics
-    ; enemy
-    ; fruit
-    ; objects
-    ; player
-    core
-    stdlib
-    core_unix
-    core_unix.command_unix))
+; (executable
+;   (name main)
+;   (modules main)
+;   (libraries
+;     ; game_state
+;     game_map
+;     render
+;     ; graphics
+;     ; enemy
+;     ; fruit
+;     ; objects
+;     ; player
+;     core
+;     stdlib
+;     core_unix
+;     core_unix.command_unix))

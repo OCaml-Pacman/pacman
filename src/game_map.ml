@@ -32,7 +32,7 @@ let load filename =
 
 let get_size _ : (float * float) =
   let x_max = Float.of_int (Array.get !data 0 |> Array.length) in
-  let y_max = Float.of_int (Array.get !data 0 |> Array.length) in
+  let y_max = Float.of_int (Array.length !data) in
     (x_max, y_max)
 
 (* Get the item at given coordination *)

@@ -22,3 +22,6 @@ bisect*.coverage
 *~
 \#*\#
 .DS_Store
+
+# Windows
+Thumbs.db
