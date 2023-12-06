@@ -12,9 +12,30 @@ type t = {
   mutable sprite : int * int;
 }
 
-
 let player_speed = 1.0
-let player_sprite_num = 3
+let player_sprite_num = 4
+let string_of_player_state = function Alive -> "Alive" | Dead -> "Dead"
+
+let string_of_direction = function
+  | Up -> "Up"
+  | Down -> "Down"
+  | Left -> "Left"
+  | Right -> "Right"
+
+let string_of_player record =
+  let position_str =
+    Printf.sprintf "(%f, %f)" (fst record.position) (snd record.position)
+  in
+  let player_state_str = string_of_player_state record.player_state in
+  let move_counter_str = string_of_int record.move_counter in
+  let move_direction_str = string_of_direction record.move_direction in
+  let sprite_str =
+    Printf.sprintf "(%d, %d)" (fst record.sprite) (snd record.sprite)
+  in
+  Printf.sprintf
+    "{ position: %s; player_state: %s; move_counter: %s; move_direction: %s; \
+     sprite: %s }\n"
+    position_str player_state_str move_counter_str move_direction_str sprite_str
 
 let key_to_direction (key : key) : direction option =
   match key with
@@ -73,10 +94,11 @@ let update (player : t) (key : key) : t =
   in
   let new_pos = add_position player.position (direction_to_delta direction) in
   (match Game_map.get_location new_pos with
-  | Wall -> ()
+  | Wall -> print_endline (Printf.sprintf "Got wall at (%f, %f)" (fst new_pos) (snd new_pos));
   | _ -> player.position <- new_pos);
   player.move_counter <- (player.move_counter + 1) mod player_sprite_num;
   update_sprite player;
+  print_endline (string_of_player player);
   player
 
 let check_alive (player : t) : bool =
