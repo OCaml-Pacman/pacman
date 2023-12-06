@@ -65,12 +65,12 @@ let get_enemy_update (enemy:enemy) (player_pos:float * float) : enemy =
   | Orange -> Orange_enemy.update enemy player_pos
   | Pink -> Pink_enemy.update enemy player_pos
 
-
+(* TODO: change number of enemys and fruits in future *)
 let new_game = 
   let new_player = Player.create init_pos_player in
   let new_red_enemy = Red_enemy.create init_pos_enemy in 
-  let new_fruits = Fruit.create init_pos_fruits in 
-  init_game_state new_player [new_fruits;new_fruits] [new_red_enemy; new_red_enemy]
+  let new_fruits = Fruit.create init_pos_fruits Cherry in 
+  init_game_state new_player [new_fruits] [new_red_enemy]
 
 
 (*[check_overlap user_pos ghost] will return true if the distance between the 

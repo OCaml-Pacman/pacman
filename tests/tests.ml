@@ -1,7 +1,7 @@
-open Base
 open Core
 open OUnit2
 open Enemy
+open Game_state
 
 (* Enemy Test *)
 let test_match_dir_to_ind () =
@@ -16,17 +16,21 @@ let test_match_dir_to_ind () =
   | Failure "invalid int of direction" -> ()
   | _ -> assert false
 
-let test_update_red_enemy () =
-  let enemy = Red_enemy.create (5.0, 5.0) in
-  let updated_enemy = Red_enemy.update enemy (10.0, 10.0) in
-  (* Assertions to check if the enemy's position and move_direction are updated correctly *)
-  
+let test_update_enemy () =
+  let test_enemy1 = Red_enemy.create (5.0, 5.0) in
+  let updated_enemy = Red_enemy.update test_enemy1 (10.0, 10.0) in
+  assert_equal 1 @@ updated_enemy.move_counter
 
+(* let test_new_game = new_game
+let test_game_win _ = 
+  test_new_game.state <- Win;
+  let test_game_next = update (Some 'w') test_new_game in
+  assert_equal 0 @@ test_game_next.score *)
 let tests =
   "Pacman Tests"
   >: test_list
        [
-         "test distribution" >:: test_distribution;
+         "test distribution" >:: test_game_win;
        ]
 
 let series = "Pacman Tests" >::: [ tests ]
