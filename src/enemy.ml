@@ -63,7 +63,7 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
   
   let get_pos (e:t) : (float * float) = e.position  
 
-  let scared_speed = 0.1
+  let scared_speed = 0.08
     
   let update (cur_e : t) (player_pos : (float * float))  : t = 
     let next_counter = cur_e.move_counter + 1 in
@@ -108,7 +108,7 @@ module Set_red_enemy : SetEnemyType = struct
   (* Red enemy move randomly  *)
   let get_enemytype = Red
   let get_sprite = [[(0, 4); (1, 4)]; [(2, 4); (3, 4)]; [(4, 4); (5, 4)]; [(6, 4); (7, 4)]]
-  let enemy_speed = 1.0
+  let enemy_speed = 0.04
   (* TODO: Do I need input map here? use get_location instead *)
   let move (cur_e : t) (player_pos : (float * float)) : t =  
     let rec aux () = 

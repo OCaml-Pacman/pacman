@@ -12,8 +12,9 @@ type t = {
   mutable sprite : int * int;
 }
 
-let player_speed = 1.0
-let player_sprite_num = 4
+
+let player_speed = 0.08
+let player_sprite_num = 3
 (* let string_of_player_state = function Alive -> "Alive" | Dead -> "Dead"
 
 let string_of_direction = function

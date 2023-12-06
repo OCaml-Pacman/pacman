@@ -57,10 +57,17 @@ let sub_image sheet x_pos y_pos width height =
   done;
   Graphics.make_image sub_matrix
 
-let sprite_from_sheet (sheet: Graphics.image) (x: int) (y: int)  = 
-  let x_pos = x * 16 + 2 in
-  let y_pos = y * 16 in
-  sub_image sheet x_pos y_pos 16 16 
+let sprite_cache = Hashtbl.create 10
+
+let sprite_from_sheet (sheet: Graphics.image) (x: int) (y: int) =
+  try
+    Hashtbl.find sprite_cache (x, y)
+  with Not_found ->
+    let x_pos = x * 16 + 2 in
+    let y_pos = y * 16 in
+    let sprite = sub_image sheet x_pos y_pos 16 16 in
+    Hashtbl.add sprite_cache (x, y) sprite;
+    sprite
 
 let draw_sprite (sx, sy) (x,y) : unit = Graphics.draw_image (sprite_from_sheet !sprite sx sy) x y
 

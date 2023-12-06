@@ -191,7 +191,7 @@ let update_active input_key cur_state =
   else cur_state.state <- Lose;
   cur_state
 
-let update (input_key : char option) (current_state : t) : t =
+let update (input_key : char option) (current_state : t)  : t =
   let current_state = check_scared_time_state current_state in
   let current_state = check_win current_state in
   match current_state.state with
