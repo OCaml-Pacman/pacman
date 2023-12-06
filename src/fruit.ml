@@ -14,7 +14,6 @@ type fruit = {
 
 type t = fruit
 
-
 let create (init_pos : float * float) (fruit: fruit_type) : t =
   let sprite_pos = 
     match fruit with

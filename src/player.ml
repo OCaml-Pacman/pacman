@@ -4,7 +4,7 @@ type player_state = Alive | Dead
 type direction = Up | Down | Left | Right
 type key = None | Key of char
 
-type player = {
+type t = {
   mutable position : float * float;
   mutable player_state : player_state;
   mutable move_counter : int;
@@ -12,7 +12,6 @@ type player = {
   mutable sprite : int * int;
 }
 
-type t = player
 
 let player_speed = 1.0
 let player_sprite_num = 3
@@ -35,7 +34,7 @@ let direction_to_delta (direction : direction) =
 let add_position (p1 : float * float) (p2 : float * float) : float * float =
   (fst p1 +. (fst p2 *. player_speed), snd p1 +. (snd p2 *. player_speed))
 
-let update_sprite (player : player) : unit =
+let update_sprite (player : t) : unit =
   match (player.move_direction, player.move_counter) with
   | Up, 0 -> player.sprite <- (2, 0)
   | Up, 1 -> player.sprite <- (1, 2)

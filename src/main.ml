@@ -1,4 +1,4 @@
-open Core
+(* open Core *)
 open Stdlib
 
 
@@ -11,12 +11,12 @@ let rec game_loop state =
     else None
   in
   let new_state = Game_state.update key state in
-  Render.render new_state; (* render time *)
+  (* Render.render new_state; render time *)
   game_loop new_state
 
 
 let main () =
-  let initial_state = Game_state.new_game initial_map in
+  let initial_state = Game_state.new_game  in
   Graphics.open_graph " 800x600";
   try
     game_loop initial_state

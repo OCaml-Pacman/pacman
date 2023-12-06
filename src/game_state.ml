@@ -8,12 +8,12 @@ type state =  Active | Win | Lose
 
 type t = {
   mutable player: Player.t;
-  mutable fruits: Fruit.t list;
   mutable enemys: enemy list;
   mutable score: int;
   mutable state: state;
   mutable enemy_scared: bool;
   mutable enemy_scared_timer: int;
+  fruits: Fruit.t list;
   }
 
 
@@ -69,7 +69,7 @@ let get_enemy_update (enemy:enemy) (player_pos:float * float) : enemy =
 let new_game = 
   let new_player = Player.create init_pos_player in
   let new_red_enemy = Red_enemy.create init_pos_enemy in 
-  let new_fruits = Fruit.create init_pos_fruits in 
+  let new_fruits = Fruit.create init_pos_fruits Cherry in 
   init_game_state new_player [new_fruits;new_fruits] [new_red_enemy; new_red_enemy]
 
 
@@ -88,10 +88,10 @@ let check_enemy_overlap (player_pos:float * float) (enemy:enemy) : bool =
 
 (* check whether enemy and player meet and update the state correspondingly *)
 let check_enemy_state (cur_player: Player.t) (cur_enemy: enemy) (cur_state: t)= 
-  let enemy_overlap = check_enemy_overlap (cur_player.position) cur_enemy in
+  let enemy_overlap = check_enemy_overlap cur_player.position cur_enemy in
   match enemy_overlap, cur_enemy.enemy_state with
   | true, Active -> 
-    cur_player.player_state <- Dead;
+    cur_player.player_state <- Player.Dead;
   | false, Active -> ()
   | true, Scared ->
     cur_enemy.enemy_state <- Dead;
@@ -113,10 +113,28 @@ let check_object_overlap (cur_player: Player.t) (cur_state: t) =
     cur_state.enemy_scared <- true;
   | _ -> ()
 
+(* check whether the current position has object, normal object will add one points to total score. 
+Big object will change enemy to scared state *)
+
+let check_fruit_overlap (player_pos:float * float) (fruit:Fruit.t) : bool =
+  let fruit_pos = fruit.position in 
+  let ghost_x = fst fruit_pos in 
+  let ghost_y = snd fruit_pos in 
+  let user_x = fst player_pos in 
+  let user_y = snd player_pos in 
+  let check_distance = 1.0 in 
+  ((Float.(<=) (Float.abs(ghost_x -. user_x)) check_distance) && (Float.(=.) user_y ghost_y ))|| 
+  ((Float.(<=) (Float.abs (ghost_y -. user_y)) check_distance) && (Float.(=.) user_x ghost_x))
+
+let check_fruit_state (player: Player.t) (fruit:Fruit.t) = 
+  if check_fruit_overlap player.position fruit then 
+    (fruit.fruit_state <- Eaten;)
+  else ()
+
 (* Transfer the Some/None type to Key/None type *)
 let trans_key_option input_key = 
   match input_key with 
-  | Some v -> Player.Key v
+  | Some v -> Key v
   | None -> None
 
 (* check the timeout of scared enemy *)
@@ -136,13 +154,13 @@ let check_win cur_state =
     (cur_state.state <- Win;
     cur_state)
   else cur_state
-    
 
 let update_active input_key cur_state = 
   let cur_player = cur_state.player in 
   let cur_enemys = cur_state.enemys in 
   (* check overlap between enemy and player and update game state *)
   List.iter cur_enemys ~f:(fun enemy -> check_enemy_state cur_player enemy cur_state);  
+  List.iter cur_state.fruits ~f:(fun fruit -> check_fruit_state cur_player fruit);
   check_object_overlap cur_player cur_state;
   if check_alive cur_player then 
     (* update enemy should happen before update player since the enmey needs player previous movement *)
