@@ -23,6 +23,27 @@ let match_dir_to_ind dir =
   | 3 -> (0.0, -1.0)
   | _ -> failwith "invalid int of direction"
 
+
+let check_collsion direction pos = 
+  let (x,y) = pos in
+  let (jx, jy) = (Float.add x 0.05, Float.add y 0.05) in
+  let roundXPos = (Float.round x, y) in
+  let roundYPos = (x, Float.round y) in
+  let ul = Game_map.get_location (jx, jy) in
+  let ur = Game_map.get_location (Float.add jx 0.90,jy) in
+  let dl = Game_map.get_location (jx,Float.add jy 0.90) in
+  let dr = Game_map.get_location (Float.add jx 0.90, Float.add jy 0.90) in
+  match direction, ul, ur, dl, dr with
+    | 0, Wall, _, _, _ -> roundYPos
+    | 0, _, Wall, _, _ -> roundYPos
+    | 1, _, _, Wall, _ -> roundYPos
+    | 1, _, _, _, Wall -> roundYPos
+    | 3, Wall, _, _, _ -> roundXPos
+    | 2, _, Wall, _, _ -> roundXPos
+    | 3, _, _, Wall, _ -> roundXPos
+    | 2, _, _, _, Wall -> roundXPos
+    | _ -> pos
+
 module type SetEnemyType = sig
   type t = enemy
   val move :  t -> (float * float) ->  t
@@ -87,7 +108,7 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
         match Game_map.get_location (next_x, next_y) with
           | Game_map.Wall -> aux ((d+1) mod 4)
           | _ ->     
-            cur_e.position <- (next_x, next_y);
+            cur_e.position <- check_collsion d (next_x, next_y);
             cur_e.move_direction <- d
       in aux cur_e.move_direction;
       (* find the corrsponding sprite *)
@@ -120,7 +141,7 @@ module Set_red_enemy : SetEnemyType = struct
       match Game_map.get_location (next_x, next_y) with
       | Game_map.Wall -> aux ()
       | _ ->     
-        cur_e.position <- (next_x, next_y);
+        cur_e.position <- check_collsion selected_dir (next_x, next_y);
         cur_e.move_direction <- selected_dir;
         cur_e
     in aux ()   
