@@ -2,20 +2,27 @@
 open Stdlib
 
 let rec game_loop state =
-
   let key = 
     if Graphics.key_pressed() 
     then Some (Graphics.read_key())
     else None
   in
+  (* Create New state *)
   let new_state = Game_state.update key state in
+  (* Draw Basemap *)
   Render.draw_map ();
+  (* Draw enemies *)
   Game_state.get_enemies new_state |> List.iter ((fun (e :Enemy.enemy) ->
     Render.draw_sprite e.sprite @@ Render.coord_map2screen e.position ));
   Game_state.get_fruits new_state |> List.iter (fun (f :Fruit.t) ->
     Render.draw_sprite f.sprite @@ Render.coord_map2screen f.position );
+  (* Draw Player *)
   let p = Game_state.get_player new_state in
   Render.draw_sprite p.sprite @@ Render.coord_map2screen p.position;
+  Graphics.set_color Graphics.white;
+  Graphics.moveto 0 0;
+  (* Draw Score *)
+  Game_state.get_score new_state |> Printf.sprintf "Score: %d" |> Graphics.draw_string;
   Unix.sleepf 0.04;
   game_loop new_state
 

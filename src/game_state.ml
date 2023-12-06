@@ -65,6 +65,9 @@ let get_ghost_score (ghosts_eaten : enemy_type) : int =
   | Orange -> 800
   | Pink -> 1600
 
+let get_score state = 
+  state.score
+
 let get_enemy_update (enemy : enemy) (player_pos : float * float) : enemy =
   match enemy.enemy_type with
   | Red -> Red_enemy.update enemy player_pos
