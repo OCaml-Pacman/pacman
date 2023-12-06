@@ -16,6 +16,7 @@ let rec game_loop state =
     Render.draw_sprite f.sprite @@ Render.coord_map2screen f.position );
   let p = Game_state.get_player new_state in
   Render.draw_sprite p.sprite @@ Render.coord_map2screen p.position;
+  Unix.sleepf 0.04;
   game_loop new_state
 
 

@@ -13,7 +13,7 @@ type t = {
 }
 
 
-let player_speed = 1.0
+let player_speed = 0.08
 let player_sprite_num = 3
 
 let key_to_direction (key : key) : direction option =
