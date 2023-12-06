@@ -10,21 +10,12 @@ let rec game_loop state =
   in
   let new_state = Game_state.update key state in
   Render.draw_map ();
-  Game_state.get_enemies new_state |> List.iter (fun (e :Enemy.enemy) ->
-    let (rx, ry) = e.position in
-    let x = Float.mul rx 16. |> Float.to_int in
-    let y = Float.mul ry 16. |> Float.to_int in
-    Render.draw_sprite e.sprite (x, y) );
+  Game_state.get_enemies new_state |> List.iter ((fun (e :Enemy.enemy) ->
+    Render.draw_sprite e.sprite @@ Render.coord_map2screen e.position ));
   Game_state.get_fruits new_state |> List.iter (fun (f :Fruit.t) ->
-    let (rx, ry) = f.position in
-    let x = Float.mul rx 16. |> Float.to_int in
-    let y = Float.mul ry 16. |> Float.to_int in
-    Render.draw_sprite f.sprite (x, y) );
+    Render.draw_sprite f.sprite @@ Render.coord_map2screen f.position );
   let p = Game_state.get_player new_state in
-  let (rx, ry) = p.position in
-  let x = Float.mul rx 16. |> Float.to_int in
-  let y = Float.mul ry 16. |> Float.to_int in
-  Render.draw_sprite p.sprite (x, y);
+  Render.draw_sprite p.sprite @@ Render.coord_map2screen p.position;
   game_loop new_state
 
 

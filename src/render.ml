@@ -70,13 +70,19 @@ let set_res _ =
   let y = (Float.to_int fy) * 16 in
   Graphics.resize_window x y
 
+let coord_map2screen (x,y) = 
+  let (_,lim_y) = get_size () in
+  let x = Float.mul x 16. |> Float.to_int in
+  let y =  (Float.sub lim_y @@ Float.add y 1.) |> Float.mul 16. |> Float.to_int in
+  (x, y)
+
 let draw_map _ =
   let (fx,fy) = get_size () in
   let (lim_x,lim_y) = (Float.round fx |> Float.to_int, Float.round fy |> Float.to_int) in
   for x = 0 to lim_x - 1 do
     for y = 0 to lim_y - 1 do
-      let loc = (x * 16, (lim_y - 1 - y) * 16) in
       let map_loc = (Float.of_int x, Float.of_int y) in
+      let loc = coord_map2screen map_loc in
       match get_location map_loc with
         | Wall -> draw_sprite wall_sprite loc
         | Ground -> draw_sprite ground_sprite loc

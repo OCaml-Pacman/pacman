@@ -7,3 +7,5 @@ val draw_map: unit -> unit
 val load_sprite : string -> bool
 
 val set_res : unit -> unit
+
+val coord_map2screen : (float * float) -> (int * int)
