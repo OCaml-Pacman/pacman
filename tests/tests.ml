@@ -45,10 +45,9 @@ let test_update_enemy _ =
   [| Game_map.Ground; Game_map.Ground; Game_map.Ground; Game_map.Ground |] |]in 
   Game_map.load_from_data test_map_data;
   let test_enemy1 = Red_enemy.create (0.0, 0.0) in
-  assert_equal 0 @@ test_enemy1.move_counter
-  (* let updated_enemy = Red_enemy.update test_enemy1 (3.0, 0.0) in
-  assert_equal 1 @@ updated_enemy.move_counter *)
-
+  assert_equal 0 @@ test_enemy1.move_counter;
+  let updated_enemy = Red_enemy.update test_enemy1 (3.0, 0.0) in
+  assert_equal 1 @@ updated_enemy.move_counter
 
 
 (* let test_new_game = new_game
