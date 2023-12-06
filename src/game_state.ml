@@ -123,7 +123,8 @@ let check_object_overlap (cur_player : Player.t) (cur_state : t) =
   | BigOrb ->
       cur_state.enemys
       |> List.iter ~f:(fun enemy -> enemy.enemy_state <- Scared);
-      cur_state.enemy_scared <- true
+      cur_state.enemy_scared <- true;
+      change_location pos Ground
   | _ -> ()
 
 (* check whether the current position has object, normal object will add one points to total score.

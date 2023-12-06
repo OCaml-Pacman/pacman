@@ -8,6 +8,6 @@
     ; fruit
     game_map
     ; game_state
-    ; player
+    player
     render
   ))
