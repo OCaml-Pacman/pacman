@@ -24,14 +24,22 @@ let load filename =
     data :=
       Csv.load filename |> List.map ~f:Array.of_list |> Array.of_list
       |> Array.map ~f:(Array.map ~f:f_map);
-    raw_data := !data;
+    raw_data := Array.copy !data;
+    Array.iteri  ~f:(
+      fun index -> fun a ->
+        (!raw_data).(index) <- Array.copy a
+    ) (!data);
     true
   with _ -> false
 
 let reload () = 
-  data := !raw_data
+  data := Array.copy !raw_data;
+  Array.iteri  ~f:(
+    fun index -> fun a ->
+      (!data).(index) <- Array.copy a
+  ) (!raw_data);;
 
-let get_size _ : float * float =
+let get_size () : float * float =
   let x_max = Float.of_int (Array.get !data 0 |> Array.length) in
   let y_max = Float.of_int (Array.length !data) in
   (x_max, y_max)

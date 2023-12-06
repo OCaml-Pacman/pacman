@@ -32,6 +32,7 @@ let main () =
   if Game_map.load "map.csv" && Render.load_sprite "sprite.png" then
     let initial_state = Game_state.new_game ()  in
     Graphics.open_graph "";
+    Render.set_res ();
     try
       game_loop initial_state
     with

@@ -74,6 +74,7 @@ let get_enemy_update (enemy : enemy) (player_pos : float * float) : enemy =
 
 let new_game () =
   Printf.eprintf "New game\n";
+  Out_channel.flush stdout;
   Game_map.reload ();
   (* let (rx, ry) = Game_map.get_size () in *)
   let new_player = Player.create @@ (Game_map.find_player () |> Option.value_exn) in
