@@ -92,11 +92,10 @@ let check_enemy_overlap (player_pos : float * float) (enemy : enemy) : bool =
   let ghost_y = snd enemy_pos in
   let user_x = fst player_pos in
   let user_y = snd player_pos in
-  let check_distance = 1.0 in
-  Float.( <= ) (Float.abs (ghost_x -. user_x)) check_distance
-  && Float.( =. ) user_y ghost_y
-  || Float.( <= ) (Float.abs (ghost_y -. user_y)) check_distance
-     && Float.( =. ) user_x ghost_x
+  Float.( <= ) (Float.abs (ghost_x -. user_x)) 1.0
+  &&   Float.( <= ) (Float.abs (ghost_y -. user_y)) 0.1
+  || Float.( <= ) (Float.abs (ghost_y -. user_y)) 1.0
+     && Float.( <= ) (Float.abs (ghost_x -. user_x)) 0.1
 
 (* check whether enemy and player meet and update the state correspondingly *)
 let check_enemy_state (cur_player : Player.t) (cur_enemy : enemy)
