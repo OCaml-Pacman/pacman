@@ -96,10 +96,14 @@ let check_enemy_overlap (player_pos : float * float) (enemy : enemy) : bool =
   let user_x = fst player_pos in
   let user_y = snd player_pos in
   let check_distance = 1.0 in
-  Float.( <= ) (Float.abs (ghost_x -. user_x)) check_distance
+  let dx = user_x -. ghost_x in
+  let dy = user_y -. ghost_y in
+  let dist = sqrt ((dx *. dx) +. (dy *. dy)) in
+  Float.( <= ) dist check_distance
+  (* Float.( <= ) (Float.abs (ghost_x -. user_x)) check_distance
   && Float.( =. ) user_y ghost_y
   || Float.( <= ) (Float.abs (ghost_y -. user_y)) check_distance
-     && Float.( =. ) user_x ghost_x
+     && Float.( =. ) user_x ghost_x *)
 
 (* check whether enemy and player meet and update the state correspondingly *)
 let check_enemy_state (cur_player : Player.t) (cur_enemy : enemy)
@@ -141,10 +145,14 @@ let check_fruit_overlap (player_pos : float * float) (fruit : Fruit.t) : bool =
   let user_x = fst player_pos in
   let user_y = snd player_pos in
   let check_distance = 1.0 in
-  Float.( <= ) (Float.abs (ghost_x -. user_x)) check_distance
+  let dx = user_x -. ghost_x in
+  let dy = user_y -. ghost_y in
+  let dist = sqrt ((dx *. dx) +. (dy *. dy)) in
+  Float.( <= ) dist check_distance
+  (* Float.( <= ) (Float.abs (ghost_x -. user_x)) check_distance
   && Float.( =. ) user_y ghost_y
   || Float.( <= ) (Float.abs (ghost_y -. user_y)) check_distance
-     && Float.( =. ) user_x ghost_x
+     && Float.( =. ) user_x ghost_x *)
 
 let check_fruit_state (player : Player.t) (fruit : Fruit.t) =
   if check_fruit_overlap player.position fruit then fruit.fruit_state <- Eaten
