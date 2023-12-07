@@ -3,6 +3,9 @@
 (** The type [t] represents the game state. *)
 type t
 
+(** State interface of the game *)
+type state = Active | Win | Lose
+
 (** [update input state] updates the game state [state] for one frame based on the optional input [input]. 
     Returns the updated game state. *)
 val update : char option -> t -> t
@@ -21,3 +24,6 @@ val get_fruits : t -> Fruit.t list
 
 (** [get_score state] returns the current score from the game state [state]. *)
 val get_score : t -> int
+
+(** [get_state state] returns the current state from the game state [state]. *)
+val get_state : t -> state 

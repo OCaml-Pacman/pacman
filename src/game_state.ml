@@ -76,8 +76,7 @@ let get_enemy_update (enemy : enemy) (player_pos : float * float) : enemy =
   | Pink -> Pink_enemy.update enemy player_pos
 
 let new_game () =
-  Printf.eprintf "New game\n";
-  Out_channel.flush stdout;
+  Printf.eprintf "[INFO] New game\n";
   Game_map.reload ();
   (* let (rx, ry) = Game_map.get_size () in *)
   let new_player = Player.create @@ (Game_map.find_player () |> Option.value_exn) in
@@ -96,10 +95,14 @@ let check_enemy_overlap (player_pos : float * float) (enemy : enemy) : bool =
   let user_x = fst player_pos in
   let user_y = snd player_pos in
   let check_distance = 1.0 in
-  Float.( <= ) (Float.abs (ghost_x -. user_x)) check_distance
+  let dx = user_x -. ghost_x in
+  let dy = user_y -. ghost_y in
+  let dist = sqrt ((dx *. dx) +. (dy *. dy)) in
+  Float.( <= ) dist check_distance
+  (* Float.( <= ) (Float.abs (ghost_x -. user_x)) check_distance
   && Float.( =. ) user_y ghost_y
   || Float.( <= ) (Float.abs (ghost_y -. user_y)) check_distance
-     && Float.( =. ) user_x ghost_x
+     && Float.( =. ) user_x ghost_x *)
 
 (* check whether enemy and player meet and update the state correspondingly *)
 let check_enemy_state (cur_player : Player.t) (cur_enemy : enemy)
@@ -141,10 +144,14 @@ let check_fruit_overlap (player_pos : float * float) (fruit : Fruit.t) : bool =
   let user_x = fst player_pos in
   let user_y = snd player_pos in
   let check_distance = 1.0 in
-  Float.( <= ) (Float.abs (ghost_x -. user_x)) check_distance
+  let dx = user_x -. ghost_x in
+  let dy = user_y -. ghost_y in
+  let dist = sqrt ((dx *. dx) +. (dy *. dy)) in
+  Float.( <= ) dist check_distance
+  (* Float.( <= ) (Float.abs (ghost_x -. user_x)) check_distance
   && Float.( =. ) user_y ghost_y
   || Float.( <= ) (Float.abs (ghost_y -. user_y)) check_distance
-     && Float.( =. ) user_x ghost_x
+     && Float.( =. ) user_x ghost_x *)
 
 let check_fruit_state (player : Player.t) (fruit : Fruit.t) =
   if check_fruit_overlap player.position fruit then fruit.fruit_state <- Eaten
@@ -200,5 +207,15 @@ let update (input_key : char option) (current_state : t)  : t =
   let current_state = check_win current_state in
   match current_state.state with
   | Active -> update_active input_key current_state
-  | Lose -> new_game ()
-  | Win -> new_game ()
+  | Lose -> (
+    match input_key with
+    | Some _ -> new_game ()
+    | _ -> current_state
+  )
+  | Win -> (
+    match input_key with
+    | Some _ -> new_game ()
+    | _ -> current_state
+  )
+
+let get_state (current_state : t) : state = current_state.state 
