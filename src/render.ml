@@ -8,7 +8,7 @@ let enemy_sprite = (0,4)
 let player_sprite = (0,0)
 let fruit_sprite = (2,3);;
 
-Graphics.open_graph ""
+Graphics.open_graph " 100x100"
 
 let sprite = ref (Graphics.make_image @@ Array.make_matrix 18 18 Graphics.transp)
 

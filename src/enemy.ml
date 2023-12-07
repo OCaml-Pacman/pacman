@@ -98,7 +98,7 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
   
   let get_pos (e:t) : (float * float) = e.position  
 
-  let scared_speed = 0.08
+  let scared_speed = 0.02
     
   let update (cur_e : t) (player_pos : (float * float))  : t = 
     let next_counter = cur_e.move_counter + 1 in
