@@ -200,5 +200,15 @@ let update (input_key : char option) (current_state : t)  : t =
   let current_state = check_win current_state in
   match current_state.state with
   | Active -> update_active input_key current_state
-  | Lose -> new_game ()
-  | Win -> new_game ()
+  | Lose -> (
+    match input_key with
+    | Some _ -> new_game ()
+    | _ -> current_state
+  )
+  | Win -> (
+    match input_key with
+    | Some _ -> new_game ()
+    | _ -> current_state
+  )
+
+let get_state (current_state : t) : state = current_state.state 
