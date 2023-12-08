@@ -24,10 +24,10 @@ let match_dir_to_ind dir =
 
 let helper_dir int_direction = 
   match int_direction with
-  | 0 -> Up
-  | 1 -> Down
-  | 2 -> Right
-  | 3 -> Left
+  | 0 -> Right
+  | 1 -> Left
+  | 2 -> Down
+  | 3 -> Up
   | _ -> failwith "invalid int of direction"
 
 
@@ -98,7 +98,7 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
   
   let get_pos (e:t) : (float * float) = e.position  
 
-  let scared_speed = 0.08
+  let scared_speed = 0.02
     
   let update (cur_e : t) (player_pos : (float * float))  : t = 
     let next_counter = cur_e.move_counter + 1 in

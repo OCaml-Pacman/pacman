@@ -8,7 +8,7 @@ let enemy_sprite = (0,4)
 let player_sprite = (0,0)
 let fruit_sprite = (2,3);;
 
-Graphics.open_graph ""
+Graphics.open_graph " 100x100"
 
 let sprite = ref (Graphics.make_image @@ Array.make_matrix 18 18 Graphics.transp)
 
@@ -57,12 +57,15 @@ let sub_image sheet x_pos y_pos width height =
   done;
   Graphics.make_image sub_matrix
 
+(* We need have cache to solve perfomance issue when cutting sprite *)
 let sprite_cache = Hashtbl.create 10
 
 let sprite_from_sheet (sheet: Graphics.image) (x: int) (y: int) =
   try
+    (* Find in cache first *)
     Hashtbl.find sprite_cache (x, y)
   with Not_found ->
+    (* Cut sprite and save it in cache *)
     let x_pos = x * 16 + 2 in
     let y_pos = y * 16 in
     let sprite = sub_image sheet x_pos y_pos 16 16 in
