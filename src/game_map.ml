@@ -30,7 +30,9 @@ let load filename =
     true
   with _ -> false
 
-let load_from_data input_data = data := Array.copy !input_data
+let load_from_data input_data = 
+  data := Array.copy !input_data;
+  raw_data := Array.copy !data
 
 let reload () =
   data := Array.copy !raw_data;

@@ -23,15 +23,6 @@ let get_enemies (state:t) : enemy list =
 let get_fruits (state:t) : Fruit.t list =
   state.fruits
 
-(*
-  player获取输入更新位置（输入，当前player，map）
-  enemy获取状态，检查变成逃的时间，时间结束重制状态，寻路，更新位置，（当前player，当前enemy，map）
-  比player和所有enemy，如果碰到，enemy在逃，enemy死，否则，player死，更新score
-  比Player和所有的大豆，如果碰到，enemy变成逃
-  加分
-  渲染
-*)
-
 let init_game_state (player : Player.t) (fruits : Fruit.t list)
     (enemys : enemy list) =
   {
@@ -43,19 +34,7 @@ let init_game_state (player : Player.t) (fruits : Fruit.t list)
     enemy_scared = false;
     enemy_scared_timer = 0;
   }
-
-(* the inital coordinates to put the game objects *)
-(* let init_pos_player = (0.0, 0.0)
-let init_pos_fruits = (20.0, 20.0)
-let init_pos_enemy = (50.0, 50.0) *)
 let enemy_scared_time = 200
-
-(* (** [check_key key_char] checks if the given char [key_char] is a valid
-       movement. *)
-   let check_key (key_char: char) : bool =
-     match key_char with
-     | 'a' | 'w' | 's' | 'd' -> true
-     | _ -> false *)
 
 (* get the scores when the ghost is eaten *)
 let get_ghost_score (ghosts_eaten : enemy_type) : int =
@@ -99,10 +78,6 @@ let check_enemy_overlap (player_pos : float * float) (enemy : enemy) : bool =
   let dy = user_y -. ghost_y in
   let dist = sqrt ((dx *. dx) +. (dy *. dy)) in
   Float.( <= ) dist check_distance
-  (* Float.( <= ) (Float.abs (ghost_x -. user_x)) check_distance
-  && Float.( =. ) user_y ghost_y
-  || Float.( <= ) (Float.abs (ghost_y -. user_y)) check_distance
-     && Float.( =. ) user_x ghost_x *)
 
 (* check whether enemy and player meet and update the state correspondingly *)
 let check_enemy_state (cur_player : Player.t) (cur_enemy : enemy)
@@ -148,10 +123,7 @@ let check_fruit_overlap (player_pos : float * float) (fruit : Fruit.t) : bool =
   let dy = user_y -. ghost_y in
   let dist = sqrt ((dx *. dx) +. (dy *. dy)) in
   Float.( <= ) dist check_distance
-  (* Float.( <= ) (Float.abs (ghost_x -. user_x)) check_distance
-  && Float.( =. ) user_y ghost_y
-  || Float.( <= ) (Float.abs (ghost_y -. user_y)) check_distance
-     && Float.( =. ) user_x ghost_x *)
+
 
 let check_fruit_state (player : Player.t) (fruit : Fruit.t) =
   if check_fruit_overlap player.position fruit then fruit.fruit_state <- Eaten

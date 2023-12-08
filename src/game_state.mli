@@ -1,10 +1,19 @@
 (** This module defines the type and functions for managing the game state in a game. *)
-
-(** The type [t] represents the game state. *)
-type t
+open Enemy
 
 (** State interface of the game *)
 type state = Active | Win | Lose
+(** The type [t] represents the game state. *)
+type t = {
+  mutable player : Player.t;
+  mutable enemys : enemy list;
+  mutable score : int;
+  mutable state : state;
+  mutable enemy_scared : bool;
+  mutable enemy_scared_timer : int;
+  fruits : Fruit.t list;
+}
+
 
 (** [update input state] updates the game state [state] for one frame based on the optional input [input]. 
     Returns the updated game state. *)

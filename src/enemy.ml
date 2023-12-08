@@ -24,10 +24,10 @@ let match_dir_to_ind dir =
 
 let helper_dir int_direction = 
   match int_direction with
-  | 0 -> Up
-  | 1 -> Down
-  | 2 -> Right
-  | 3 -> Left
+  | 0 -> Right
+  | 1 -> Left
+  | 2 -> Down
+  | 3 -> Up
   | _ -> failwith "invalid int of direction"
 
 
