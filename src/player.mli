@@ -27,6 +27,7 @@ type t = {
   mutable sprite : int * int;  (** Sprite position for the player. *)
   mutable fruits : Fruit.fruit_type list;
       (** The fruits that player currently have **)
+  mutable fruit_bullet : Fruit.t option;
 }
 (** The [t] type represents a player with various attributes. *)
 

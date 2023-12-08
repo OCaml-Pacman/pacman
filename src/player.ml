@@ -12,6 +12,7 @@ type t = {
   mutable move_direction : direction;
   mutable sprite : int * int;
   mutable fruits : fruit list;
+  mutable fruit_bullet : Fruit.t option;
 }
 
 let player_speed = 0.08
@@ -54,8 +55,9 @@ let direction_to_delta (direction : direction) =
   | Left -> (-1.0, 0.0)
   | Right -> (1.0, 0.0)
 
-let add_position (p1 : float * float) (p2 : float * float) : float * float =
-  (fst p1 +. (fst p2 *. player_speed), snd p1 +. (snd p2 *. player_speed))
+let add_position ?(speed = player_speed) (p1 : float * float)
+    (p2 : float * float) : float * float =
+  (fst p1 +. (fst p2 *. speed), snd p1 +. (snd p2 *. speed))
 
 (* let float_mod (x : float) (y : float) : float =
    x -. (y *. Float.round_down (x /. y)) *)
@@ -92,6 +94,7 @@ let create (init_pos : float * float) : t =
     move_direction = Right;
     sprite = (0, 0);
     fruits = [];
+    fruit_bullet = None;
   }
 
 let check_collsion direction pos =
@@ -119,6 +122,33 @@ let check_collsion direction pos =
   | Right, _, _, _, Wall -> roundPos
   | _ -> pos
 
+let translate_direction (direction : direction) : Fruit.direction =
+  match direction with Up -> Up | Down -> Down | Left -> Left | Right -> Right
+
+let update_fruit_bullet (player : t) (key : key) =
+  match (key, player.player_state) with
+  | Key 'j', Armed -> (
+      match player.fruits with
+      | fruit_type :: tail -> (
+          let bullet_pos =
+            add_position player.position
+              (direction_to_delta player.move_direction)
+              ~speed:1.0
+          in
+          match Game_map.get_location bullet_pos with
+          | Wall -> ()
+          | _ -> (
+              let bullet = Fruit.create bullet_pos fruit_type in
+              bullet.move_direction <- translate_direction player.move_direction;
+              bullet.fruit_state <- Bullet;
+              player.fruit_bullet <- Some bullet;
+              player.fruits <- tail;
+              match tail with
+              | _ :: _ -> ()
+              | [] -> player.player_state <- Alive))
+      | [] -> failwith "Player armed with no fruit")
+  | _ -> ()
+
 let update (player : t) (key : key) : t =
   let direction =
     match key_to_direction key with
@@ -131,6 +161,7 @@ let update (player : t) (key : key) : t =
   player.position <- check_collsion direction new_pos;
   player.move_counter <- (player.move_counter + 1) mod player_sprite_num;
   update_sprite player;
+  update_fruit_bullet player key;
   (* print_endline (string_of_player player); *)
   player
 
@@ -141,4 +172,4 @@ let get_sprite (player : t) : int * int = player.sprite
 
 let eat_fruit (player : t) (fruit : fruit) =
   player.fruits <- fruit :: player.fruits;
-  player.player_state <- Armed;
+  player.player_state <- Armed

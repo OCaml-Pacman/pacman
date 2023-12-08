@@ -7,13 +7,23 @@ type fruit_type =
   | Orange  (** Represents an Orange fruit. *)
 [@@deriving equal]
 
+(** The [direction] type represents the direction in which the fruit can move. *)
+type direction =
+  | Up  (** Represents moving up. *)
+  | Down  (** Represents moving down. *)
+  | Left  (** Represents moving left. *)
+  | Right  (** Represents moving right. *)
+
 (** The [fruit_state] type represents the current state of a fruit. *)
 type fruit_state =
   | Eaten  (** Indicates the fruit has been eaten. *)
   | Left  (** Indicates the fruit is left or uneaten. *)
+  | Bullet  (** Indicates the fruit is shot as bullet **)
 
 type fruit = {
   mutable position : float * float;  (** The position of the fruit. *)
+  speed : float;  (** The speed of the fruit **)
+  mutable move_direction : direction;  (** The move direction of fruit **)
   mutable sprite : int * int;  (** Sprite position for the fruit. *)
   mutable fruit_type : fruit_type;  (** The type of the fruit. *)
   mutable fruit_state : fruit_state;  (** The current state of the fruit. *)
