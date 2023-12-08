@@ -11,7 +11,7 @@ type t = {
   mutable state : state;
   mutable enemy_scared : bool;
   mutable enemy_scared_timer : int;
-  fruits : Fruit.t list;
+  mutable fruits : Fruit.t list;
 }
 
 
