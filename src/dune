@@ -1,7 +1,7 @@
 (library
  (name game_map)
  (modules game_map)
- (libraries csv core)
+ (libraries csv core fruit)
  (preprocess
   (pps ppx_jane bisect_ppx)))
 
@@ -14,7 +14,8 @@
   ; game_state
   game_map
   imagelib.unix
-  graphics)
+  graphics
+  fruit)
  (preprocess
   (pps ppx_jane bisect_ppx)))
 
@@ -42,7 +43,7 @@
 (library
  (name player)
  (modules player)
- (libraries core game_map)
+ (libraries core game_map fruit)
  (preprocess
   (pps ppx_jane bisect_ppx))
  (flags

@@ -5,8 +5,7 @@ let ground_sprite = (13,3)
 let orb_sprite = (13,1)
 let big_orb_sprite = (13,2)
 let enemy_sprite = (0,4)
-let player_sprite = (0,0)
-let fruit_sprite = (2,3);;
+let player_sprite = (0,0);;
 
 Graphics.open_graph " 100x100"
 
@@ -100,6 +99,6 @@ let draw_map _ =
         | Orb -> draw_sprite orb_sprite loc
         | BigOrb -> draw_sprite big_orb_sprite loc
         | Player -> draw_sprite player_sprite loc
-        | Fruit -> draw_sprite fruit_sprite loc
+        | Fruit fruit-> draw_sprite (Fruit.get_sprite_from_type fruit) loc
     done
   done
