@@ -46,12 +46,16 @@ let load_sprite path =
   with 
     _ -> false
 
-let sub_image sheet x_pos y_pos width height =
+let sub_image sheet x_pos y_pos width height transp =
   let sheet_matrix = Graphics.dump_image sheet in
   let sub_matrix = Array.make_matrix height width Graphics.transp in
   for y = 0 to height - 1 do
     for x = 0 to width - 1 do
-      sub_matrix.(y).(x) <- sheet_matrix.(y_pos + y).(x_pos + x)
+      let color = sheet_matrix.(y_pos + y).(x_pos + x) in
+      sub_matrix.(y).(x) <- (if color = Graphics.black && transp then
+        Graphics.transp
+      else
+        color)
     done
   done;
   Graphics.make_image sub_matrix
@@ -59,19 +63,19 @@ let sub_image sheet x_pos y_pos width height =
 (* We need have cache to solve perfomance issue when cutting sprite *)
 let sprite_cache = Hashtbl.create 10
 
-let sprite_from_sheet (sheet: Graphics.image) (x: int) (y: int) =
+let sprite_from_sheet (sheet: Graphics.image) (x: int) (y: int) (transp : bool) =
   try
     (* Find in cache first *)
-    Hashtbl.find sprite_cache (x, y)
+    Hashtbl.find sprite_cache (x, y, transp)
   with Not_found ->
     (* Cut sprite and save it in cache *)
     let x_pos = x * 16 + 2 in
     let y_pos = y * 16 in
-    let sprite = sub_image sheet x_pos y_pos 16 16 in
-    Hashtbl.add sprite_cache (x, y) sprite;
+    let sprite = sub_image sheet x_pos y_pos 16 16 transp in
+    Hashtbl.add sprite_cache (x, y, transp) sprite;
     sprite
 
-let draw_sprite (sx, sy) (x,y) : unit = Graphics.draw_image (sprite_from_sheet !sprite sx sy) x y
+let draw_sprite ?(transp = true) (sx, sy) (x,y) : unit = Graphics.draw_image (sprite_from_sheet !sprite sx sy transp) x y
 
 let set_res _ = 
   let (fx,fy) = get_size () in
@@ -93,12 +97,12 @@ let draw_map _ =
       let map_loc = (Float.of_int x, Float.of_int y) in
       let loc = coord_map2screen map_loc in
       match get_location map_loc with
-        | Wall -> draw_sprite wall_sprite loc
-        | Ground -> draw_sprite ground_sprite loc
-        | Enemy -> draw_sprite enemy_sprite loc
-        | Orb -> draw_sprite orb_sprite loc
-        | BigOrb -> draw_sprite big_orb_sprite loc
-        | Player -> draw_sprite player_sprite loc
-        | Fruit fruit-> draw_sprite (Fruit.get_sprite_from_type fruit) loc
+        | Wall -> draw_sprite ~transp:false wall_sprite loc
+        | Ground -> draw_sprite ~transp:false ground_sprite loc
+        | Enemy -> draw_sprite ~transp:false enemy_sprite loc
+        | Orb -> draw_sprite ~transp:false orb_sprite loc
+        | BigOrb -> draw_sprite ~transp:false big_orb_sprite loc
+        | Player -> draw_sprite ~transp:false player_sprite loc
+        | Fruit fruit-> draw_sprite ~transp:false (Fruit.get_sprite_from_type fruit) loc
     done
   done

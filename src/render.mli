@@ -1,7 +1,7 @@
 (** This module defines functions for rendering sprites and maps in a game environment. *)
 
 (** [draw_sprite sprite_pos screen_pos] draws a sprite at position [sprite_pos] on the canvas at screen position [screen_pos]. *)
-val draw_sprite : (int * int) -> (int * int) -> unit
+val draw_sprite : ?transp: bool -> (int * int) -> (int * int) -> unit
 
 (** [draw_map ()] renders the entire game map on the canvas. *)
 val draw_map: unit -> unit
