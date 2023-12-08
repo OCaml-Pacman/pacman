@@ -1,7 +1,8 @@
 open Core
+open Common
 
 type player_state = Alive | Dead | Armed
-type direction = Up | Down | Left | Right
+type direction = Common.direction
 type key = None | Key of char
 type fruit = Fruit.fruit_type
 
@@ -122,30 +123,30 @@ let check_collsion direction pos =
   | Right, _, _, _, Wall -> roundPos
   | _ -> pos
 
-let translate_direction (direction : direction) : Fruit.direction =
-  match direction with Up -> Up | Down -> Down | Left -> Left | Right -> Right
+let is_wall (pos : float * float) : bool =
+  let pos2 = (fst pos +. 0.95, snd pos +. 0.95) in
+  match (Game_map.get_location pos, Game_map.get_location pos2) with
+  | Wall, _ -> true
+  | _, Wall -> true
+  | _ -> false
 
 let update_fruit_bullet (player : t) (key : key) =
   match (key, player.player_state) with
   | Key 'j', Armed -> (
       match player.fruits with
-      | fruit_type :: tail -> (
+      | fruit_type :: tail ->
           let bullet_pos =
             add_position player.position
               (direction_to_delta player.move_direction)
               ~speed:1.0
           in
-          match Game_map.get_location bullet_pos with
-          | Wall -> ()
-          | _ -> (
-              let bullet = Fruit.create bullet_pos fruit_type in
-              bullet.move_direction <- translate_direction player.move_direction;
-              bullet.fruit_state <- Bullet;
-              player.fruit_bullet <- Some bullet;
-              player.fruits <- tail;
-              match tail with
-              | _ :: _ -> ()
-              | [] -> player.player_state <- Alive))
+          if not (is_wall bullet_pos) then (
+            let bullet = Fruit.create bullet_pos fruit_type in
+            bullet.move_direction <- player.move_direction;
+            bullet.fruit_state <- Bullet;
+            player.fruit_bullet <- Some bullet;
+            player.fruits <- tail;
+            match tail with _ :: _ -> () | [] -> player.player_state <- Alive)
       | [] -> failwith "Player armed with no fruit")
   | _ -> ()
 

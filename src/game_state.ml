@@ -124,22 +124,42 @@ let check_object_overlap (cur_player : Player.t) (cur_state : t) =
 
 let check_fruit_overlap (player_pos : float * float) (fruit : Fruit.t) : bool =
   let fruit_pos = fruit.position in
-  let ghost_x = fst fruit_pos in
-  let ghost_y = snd fruit_pos in
+  let fruit_x = fst fruit_pos in
+  let fruit_y = snd fruit_pos in
   let user_x = fst player_pos in
   let user_y = snd player_pos in
   let check_distance = 1.0 in
-  let dx = user_x -. ghost_x in
-  let dy = user_y -. ghost_y in
+  let dx = user_x -. fruit_x in
+  let dy = user_y -. fruit_y in
   let dist = sqrt ((dx *. dx) +. (dy *. dy)) in
   Float.( <= ) dist check_distance
 
 let check_fruit_state (player : Player.t) (fruit : Fruit.t) (cur_state : t) =
-  if check_fruit_overlap player.position fruit then (
-    cur_state.score <- cur_state.score + 2;
-    Player.eat_fruit player fruit.fruit_type;
-    fruit.fruit_state <- Eaten)
+  if check_fruit_overlap player.position fruit then
+    match fruit.fruit_state with
+    | Left ->
+        cur_state.score <- cur_state.score + 2;
+        Player.eat_fruit player fruit.fruit_type;
+        fruit.fruit_state <- Eaten
+    | _ -> ()
   else ()
+
+let enemy_versus_fruit (enemy : enemy) (fruit : Fruit.t) (cur_state : t) : unit
+    =
+  if check_enemy_overlap fruit.position enemy then
+    match fruit.fruit_state with
+    | Bullet ->
+        print_endline "bang!";
+        enemy.enemy_state <- Dead;
+        cur_state.score <- cur_state.score + get_ghost_score enemy.enemy_type;
+        fruit.fruit_state <- Eaten
+    | _ -> ()
+
+let enemies_versus_fruits (enemies : enemy list) (fruits : Fruit.t list)
+    (cur_state : t) : unit =
+  List.iter enemies ~f:(fun enemy ->
+      List.iter fruits ~f:(fun fruit ->
+          enemy_versus_fruit enemy fruit cur_state))
 
 let is_fruit_left (fruit : Fruit.t) : bool =
   match fruit.fruit_state with Eaten -> false | _ -> true
@@ -178,6 +198,7 @@ let update_active input_key cur_state =
       check_fruit_state cur_player fruit cur_state);
   cur_state.fruits <- List.filter cur_fruits ~f:is_fruit_left;
   check_object_overlap cur_player cur_state;
+  enemies_versus_fruits cur_enemys cur_state.fruits cur_state;
   if check_alive cur_player then (
     (* update enemy should happen before update player since the enmey needs player previous movement *)
     let next_enemys =

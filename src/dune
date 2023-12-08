@@ -1,7 +1,14 @@
 (library
  (name game_map)
  (modules game_map)
- (libraries csv core fruit)
+ (libraries csv core common)
+ (preprocess
+  (pps ppx_jane bisect_ppx)))
+
+(library
+ (name common)
+ (modules common)
+ (libraries core)
  (preprocess
   (pps ppx_jane bisect_ppx)))
 
@@ -36,14 +43,14 @@
 (library
  (name fruit)
  (modules fruit)
- (libraries core)
+ (libraries core game_map common)
  (preprocess
   (pps ppx_jane bisect_ppx)))
 
 (library
  (name player)
  (modules player)
- (libraries core game_map fruit)
+ (libraries core game_map fruit common)
  (preprocess
   (pps ppx_jane bisect_ppx))
  (flags
