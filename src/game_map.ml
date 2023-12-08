@@ -1,6 +1,13 @@
 open Core
 
-type item = Wall | Ground | Enemy | Orb | BigOrb | Player | Fruit
+type item =
+  | Wall
+  | Ground
+  | Enemy
+  | Orb
+  | BigOrb
+  | Player
+  | Fruit of Fruit.fruit_type
 [@@deriving equal]
 
 type t = item array array ref
@@ -19,6 +26,9 @@ let load filename =
     | "P" -> Enemy
     | "O" -> Enemy
     | "C" -> Player
+    | "F" -> Fruit Fruit.Cherry
+    | "G" -> Fruit Fruit.Strawberry
+    | "H" -> Fruit Fruit.Orange
     | _ -> failwith "Invalid Map"
   in
   try
@@ -71,12 +81,17 @@ let find_enemies () =
             enemies := (Float.of_int x, Float.of_int y) :: !enemies));
   !enemies
 
+let is_fruit (item : item) : bool =
+  match item with Fruit _ -> true | _ -> false
+
 let find_fruits () =
   let fruits = ref [] in
   Array.iteri data.contents ~f:(fun y row ->
       Array.iteri row ~f:(fun x item ->
-          if equal_item item Fruit then
-            fruits := (Float.of_int x, Float.of_int y) :: !fruits));
+          match item with
+          | Fruit fruit ->
+              fruits := ((Float.of_int x, Float.of_int y), fruit) :: !fruits
+          | _ -> ()));
   !fruits
 
 let find_random_empty () =
@@ -104,4 +119,4 @@ let remove_enemies () =
 let remove_fruits () =
   Array.iteri data.contents ~f:(fun y row ->
       Array.iteri row ~f:(fun x item ->
-          if equal_item item Fruit then data.contents.(y).(x) <- Ground))
+          if is_fruit item then data.contents.(y).(x) <- Ground))

@@ -1,8 +1,9 @@
 open Core
 
-type player_state = Alive | Dead
+type player_state = Alive | Dead | Armed
 type direction = Up | Down | Left | Right
 type key = None | Key of char
+type fruit = Fruit.fruit_type
 
 type t = {
   mutable position : float * float;
@@ -10,33 +11,33 @@ type t = {
   mutable move_counter : int;
   mutable move_direction : direction;
   mutable sprite : int * int;
+  mutable fruits : fruit list;
 }
-
 
 let player_speed = 0.08
 let player_sprite_num = 3
 (* let string_of_player_state = function Alive -> "Alive" | Dead -> "Dead"
 
-let string_of_direction = function
-  | Up -> "Up"
-  | Down -> "Down"
-  | Left -> "Left"
-  | Right -> "Right"
+   let string_of_direction = function
+     | Up -> "Up"
+     | Down -> "Down"
+     | Left -> "Left"
+     | Right -> "Right"
 
-let string_of_player record =
-  let position_str =
-    Printf.sprintf "(%f, %f)" (fst record.position) (snd record.position)
-  in
-  let player_state_str = string_of_player_state record.player_state in
-  let move_counter_str = string_of_int record.move_counter in
-  let move_direction_str = string_of_direction record.move_direction in
-  let sprite_str =
-    Printf.sprintf "(%d, %d)" (fst record.sprite) (snd record.sprite)
-  in
-  Printf.sprintf
-    "{ position: %s; player_state: %s; move_counter: %s; move_direction: %s; \
-     sprite: %s }\n"
-    position_str player_state_str move_counter_str move_direction_str sprite_str *)
+   let string_of_player record =
+     let position_str =
+       Printf.sprintf "(%f, %f)" (fst record.position) (snd record.position)
+     in
+     let player_state_str = string_of_player_state record.player_state in
+     let move_counter_str = string_of_int record.move_counter in
+     let move_direction_str = string_of_direction record.move_direction in
+     let sprite_str =
+       Printf.sprintf "(%d, %d)" (fst record.sprite) (snd record.sprite)
+     in
+     Printf.sprintf
+       "{ position: %s; player_state: %s; move_counter: %s; move_direction: %s; \
+        sprite: %s }\n"
+       position_str player_state_str move_counter_str move_direction_str sprite_str *)
 
 let key_to_direction (key : key) : direction option =
   match key with
@@ -57,11 +58,11 @@ let add_position (p1 : float * float) (p2 : float * float) : float * float =
   (fst p1 +. (fst p2 *. player_speed), snd p1 +. (snd p2 *. player_speed))
 
 (* let float_mod (x : float) (y : float) : float =
-  x -. (y *. Float.round_down (x /. y)) *)
+   x -. (y *. Float.round_down (x /. y)) *)
 
 (* let get_in_map_position (position : float * float) : float * float =
-  let x_max, y_max = Game_map.get_size () in
-  (float_mod (fst position) x_max, float_mod (snd position) y_max) *)
+   let x_max, y_max = Game_map.get_size () in
+   (float_mod (fst position) x_max, float_mod (snd position) y_max) *)
 
 let update_sprite (player : t) : unit =
   match (player.move_direction, player.move_counter) with
@@ -90,33 +91,33 @@ let create (init_pos : float * float) : t =
     move_counter = 0;
     move_direction = Right;
     sprite = (0, 0);
+    fruits = [];
   }
 
-let check_collsion direction pos = 
-  let (x,y) = pos in
-  let (jx, jy) = (Float.add x 0.05, Float.add y 0.05) in
+let check_collsion direction pos =
+  let x, y = pos in
+  let jx, jy = (Float.add x 0.05, Float.add y 0.05) in
   let roundXPos = (Float.round x, y) in
   let roundYPos = (x, Float.round y) in
   let roundPos = (Float.round x, Float.round y) in
   let ul = Game_map.get_location (jx, jy) in
-  let ur = Game_map.get_location (Float.add jx 0.90,jy) in
-  let dl = Game_map.get_location (jx,Float.add jy 0.90) in
+  let ur = Game_map.get_location (Float.add jx 0.90, jy) in
+  let dl = Game_map.get_location (jx, Float.add jy 0.90) in
   let dr = Game_map.get_location (Float.add jx 0.90, Float.add jy 0.90) in
-  match direction, ul, ur, dl, dr with
-    | Up, Wall, Wall, _, _ -> roundYPos
-    | Up, Wall, _, _, _ -> roundPos
-    | Up, _, Wall, _, _ -> roundPos
-    | Down, _, Wall, Wall, _ -> roundYPos
-    | Down, _, _, _, Wall -> roundPos
-    | Down, _, _, Wall, _ -> roundPos
-    | Left, Wall, _, Wall, _ -> roundXPos
-    | Left, Wall, _, _, _ -> roundPos
-    | Left, _, _, Wall, _ -> roundPos
-    | Right, _, Wall, _, Wall -> roundXPos
-    | Right, _, Wall, _, _ -> roundPos
-    | Right, _, _, _, Wall -> roundPos
-    | _ -> pos
-  
+  match (direction, ul, ur, dl, dr) with
+  | Up, Wall, Wall, _, _ -> roundYPos
+  | Up, Wall, _, _, _ -> roundPos
+  | Up, _, Wall, _, _ -> roundPos
+  | Down, _, Wall, Wall, _ -> roundYPos
+  | Down, _, _, _, Wall -> roundPos
+  | Down, _, _, Wall, _ -> roundPos
+  | Left, Wall, _, Wall, _ -> roundXPos
+  | Left, Wall, _, _, _ -> roundPos
+  | Left, _, _, Wall, _ -> roundPos
+  | Right, _, Wall, _, Wall -> roundXPos
+  | Right, _, Wall, _, _ -> roundPos
+  | Right, _, _, _, Wall -> roundPos
+  | _ -> pos
 
 let update (player : t) (key : key) : t =
   let direction =
@@ -134,6 +135,10 @@ let update (player : t) (key : key) : t =
   player
 
 let check_alive (player : t) : bool =
-  match player.player_state with Alive -> true | Dead -> false
+  match player.player_state with Dead -> false | _ -> true
 
 let get_sprite (player : t) : int * int = player.sprite
+
+let eat_fruit (player : t) (fruit : fruit) =
+  player.fruits <- fruit :: player.fruits;
+  player.player_state <- Armed;
