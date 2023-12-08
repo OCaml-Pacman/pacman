@@ -51,7 +51,7 @@ Collect all orbs in the maze. Big orbs provide temporary invincibility.
 ### Controls
 
 *   **Movement**: Use `W`, `A`, `S`, `D` for movement.
-*   **Shoot Fruit**: Press `Z` to throw fruits.
+*   **Shoot Fruit**: Press `J` to throw fruits.
 *   **Restart Game**: Press any key to restart after the game ends.
 
 Libraries and Modules
