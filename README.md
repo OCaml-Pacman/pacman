@@ -12,22 +12,25 @@ Before building and running the game, ensure you have the following libraries in
 
 *   csv
 *   core
-*   imagelib.unix
+*   imagelib
 *   graphics
+*   ounit2 
+*   base
+*   ppx_jane
+*   ppx_deriving 
+*   bisect_ppx
 
 Install these libraries using `opam`:
 
 
 ```sh
-opam install csv core imagelib.unix graphics
+opam install csv core imagelib graphics ounit2 base ppx_jane ppx_deriving bisect_ppx
 ```
 
 
 ### Building the Project
 
 Build the game using `dune`:
-
-shCopy code
 
 ```sh
 dune build
