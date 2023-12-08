@@ -66,7 +66,8 @@ let new_game () =
     Game_map.find_enemies () |> List.map ~f:(fun pos -> Red_enemy.create pos)
   in
   let new_fruits =
-    Game_map.find_fruits () |> List.map ~f:(fun pair -> Fruit.create (fst pair) (snd pair))
+    Game_map.find_fruits ()
+    |> List.map ~f:(fun pair -> Fruit.create (fst pair) (snd pair))
   in
   Game_map.remove_player ();
   Game_map.remove_fruits ();
@@ -133,7 +134,6 @@ let check_fruit_overlap (player_pos : float * float) (fruit : Fruit.t) : bool =
   let dist = sqrt ((dx *. dx) +. (dy *. dy)) in
   Float.( <= ) dist check_distance
 
-
 let check_fruit_state (player : Player.t) (fruit : Fruit.t) (cur_state : t) =
   if check_fruit_overlap player.position fruit then (
     cur_state.score <- cur_state.score + 2;
@@ -142,7 +142,7 @@ let check_fruit_state (player : Player.t) (fruit : Fruit.t) (cur_state : t) =
   else ()
 
 let is_fruit_left (fruit : Fruit.t) : bool =
-  match fruit.fruit_state with Eaten -> false | Left -> true
+  match fruit.fruit_state with Eaten -> false | _ -> true
 
 (* Transfer the Some/None type to Key/None type *)
 let trans_key_option input_key =
@@ -169,12 +169,14 @@ let check_win cur_state =
 let update_active input_key cur_state =
   let cur_player = cur_state.player in
   let cur_enemys = cur_state.enemys in
+  let cur_fruits = cur_state.fruits in
   (* check overlap between enemy and player and update game state *)
   List.iter cur_enemys ~f:(fun enemy ->
       check_enemy_state cur_player enemy cur_state);
-  List.iter cur_state.fruits ~f:(fun fruit ->
+  (* check overlap between fruit and player and remove eaten fruit *)
+  List.iter cur_fruits ~f:(fun fruit ->
       check_fruit_state cur_player fruit cur_state);
-  cur_state.fruits <- List.filter cur_state.fruits ~f:is_fruit_left;
+  cur_state.fruits <- List.filter cur_fruits ~f:is_fruit_left;
   check_object_overlap cur_player cur_state;
   if check_alive cur_player then (
     (* update enemy should happen before update player since the enmey needs player previous movement *)
@@ -182,10 +184,19 @@ let update_active input_key cur_state =
       List.map cur_enemys ~f:(fun enemy ->
           get_enemy_update enemy cur_player.position)
     in
+    let next_fruits =
+      List.map cur_state.fruits ~f:(fun fruit -> Fruit.update fruit)
+    in
     let key = trans_key_option input_key in
     let next_player = Player.update cur_player key in
     cur_state.player <- next_player;
-    cur_state.enemys <- next_enemys)
+    cur_state.enemys <- next_enemys;
+    cur_state.fruits <- next_fruits;
+    match next_player.fruit_bullet with
+    | Some fruit ->
+        cur_state.fruits <- fruit :: cur_state.fruits;
+        next_player.fruit_bullet <- None
+    | _ -> ())
   else cur_state.state <- Lose;
   cur_state
 
