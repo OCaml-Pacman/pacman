@@ -149,7 +149,6 @@ let enemy_versus_fruit (enemy : enemy) (fruit : Fruit.t) (cur_state : t) : unit
   if check_enemy_overlap fruit.position enemy then
     match fruit.fruit_state with
     | Bullet ->
-        print_endline "bang!";
         enemy.enemy_state <- Dead;
         cur_state.score <- cur_state.score + get_ghost_score enemy.enemy_type;
         fruit.fruit_state <- Eaten
@@ -209,14 +208,13 @@ let update_active input_key cur_state =
       List.map cur_state.fruits ~f:(fun fruit -> Fruit.update fruit)
     in
     let key = trans_key_option input_key in
-    let next_player = Player.update cur_player key in
-    cur_state.player <- next_player;
+    Player.update cur_player key;
     cur_state.enemys <- next_enemys;
     cur_state.fruits <- next_fruits;
-    match next_player.fruit_bullet with
+    match cur_player.fruit_bullet with
     | Some fruit ->
         cur_state.fruits <- fruit :: cur_state.fruits;
-        next_player.fruit_bullet <- None
+        cur_player.fruit_bullet <- None
     | _ -> ())
   else cur_state.state <- Lose;
   cur_state

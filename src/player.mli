@@ -5,9 +5,10 @@ type player_state =
   | Alive  (** Indicates the player is alive. *)
   | Dead  (** Indicates the player is dead. *)
   | Armed  (** Indicates the player is armed with fruit **)
+[@@deriving equal]
 
-(** The [direction] type represents the direction in which the player can move. *)
 type direction = Common.direction
+(** The [direction] type represents the direction in which the player can move. *)
 
 (** The [key] type represents a key input by the player, with [None] for no input or [Key] for a specific character. *)
 type key =
@@ -16,6 +17,7 @@ type key =
 
 type t = {
   mutable position : float * float;  (** The position of the player. *)
+  mutable speed : float;  (** The move speed of player **)
   mutable player_state : player_state;  (** The current state of the player. *)
   mutable move_counter : int;  (** Counter for the player's movement. *)
   mutable move_direction : direction;
@@ -27,10 +29,10 @@ type t = {
 }
 (** The [t] type represents a player with various attributes. *)
 
-val create : float * float -> t
+val create : ?speed:float -> float * float -> t
 (** [create pos] creates a new player at the specified position [pos]. *)
 
-val update : t -> key -> t
+val update : t -> key -> unit
 (** [update player key] updates the player [player] based on the key input [key]. 
     Returns the updated player. *)
 

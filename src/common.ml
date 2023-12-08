@@ -1,4 +1,4 @@
-type fruit_type = Cherry | Strawberry | Orange
-[@@deriving equal]
+[@@@coverage off]
 
+type fruit_type = Cherry | Strawberry | Orange [@@deriving equal]
 type direction = Up | Down | Left | Right
