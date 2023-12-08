@@ -5,8 +5,9 @@
     core
     ounit2
     enemy
-    ; fruit
+    fruit
     game_map
     game_state
     player
+    common
   ))

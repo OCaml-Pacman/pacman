@@ -1,13 +1,14 @@
 open Core
 open Common
 
-type player_state = Alive | Dead | Armed
+type player_state = Alive | Dead | Armed [@@deriving equal]
 type direction = Common.direction
 type key = None | Key of char
 type fruit = Fruit.fruit_type
 
 type t = {
   mutable position : float * float;
+  mutable speed : float;
   mutable player_state : player_state;
   mutable move_counter : int;
   mutable move_direction : direction;
@@ -17,29 +18,7 @@ type t = {
 }
 
 let player_speed = 0.08
-let player_sprite_num = 3
-(* let string_of_player_state = function Alive -> "Alive" | Dead -> "Dead"
-
-   let string_of_direction = function
-     | Up -> "Up"
-     | Down -> "Down"
-     | Left -> "Left"
-     | Right -> "Right"
-
-   let string_of_player record =
-     let position_str =
-       Printf.sprintf "(%f, %f)" (fst record.position) (snd record.position)
-     in
-     let player_state_str = string_of_player_state record.player_state in
-     let move_counter_str = string_of_int record.move_counter in
-     let move_direction_str = string_of_direction record.move_direction in
-     let sprite_str =
-       Printf.sprintf "(%d, %d)" (fst record.sprite) (snd record.sprite)
-     in
-     Printf.sprintf
-       "{ position: %s; player_state: %s; move_counter: %s; move_direction: %s; \
-        sprite: %s }\n"
-       position_str player_state_str move_counter_str move_direction_str sprite_str *)
+let player_sprite_num = 4
 
 let key_to_direction (key : key) : direction option =
   match key with
@@ -56,16 +35,16 @@ let direction_to_delta (direction : direction) =
   | Left -> (-1.0, 0.0)
   | Right -> (1.0, 0.0)
 
-let add_position ?(speed = player_speed) (p1 : float * float)
-    (p2 : float * float) : float * float =
+let add_position (p1 : float * float) (p2 : float * float) (speed : float) :
+    float * float =
   (fst p1 +. (fst p2 *. speed), snd p1 +. (snd p2 *. speed))
 
-(* let float_mod (x : float) (y : float) : float =
-   x -. (y *. Float.round_down (x /. y)) *)
+let float_mod (x : float) (y : float) : float =
+  x -. (y *. Float.round_down (x /. y))
 
-(* let get_in_map_position (position : float * float) : float * float =
-   let x_max, y_max = Game_map.get_size () in
-   (float_mod (fst position) x_max, float_mod (snd position) y_max) *)
+let get_in_map_position (position : float * float) : float * float =
+  let x_max, y_max = Game_map.get_size () in
+  (float_mod (fst position) x_max, float_mod (snd position) y_max)
 
 let update_sprite (player : t) : unit =
   match (player.move_direction, player.move_counter) with
@@ -87,9 +66,10 @@ let update_sprite (player : t) : unit =
   | Right, 3 -> player.sprite <- (1, 0)
   | _ -> failwith "invalid player move state"
 
-let create (init_pos : float * float) : t =
+let create ?(speed = player_speed) (init_pos : float * float) : t =
   {
     position = init_pos;
+    speed;
     player_state = Alive;
     move_counter = 0;
     move_direction = Right;
@@ -138,7 +118,7 @@ let update_fruit_bullet (player : t) (key : key) =
           let bullet_pos =
             add_position player.position
               (direction_to_delta player.move_direction)
-              ~speed:1.0
+              1.0
           in
           if not (is_wall bullet_pos) then (
             let bullet = Fruit.create bullet_pos fruit_type in
@@ -150,7 +130,7 @@ let update_fruit_bullet (player : t) (key : key) =
       | [] -> failwith "Player armed with no fruit")
   | _ -> ()
 
-let update (player : t) (key : key) : t =
+let update (player : t) (key : key) : unit =
   let direction =
     match key_to_direction key with
     | Some dir ->
@@ -158,16 +138,17 @@ let update (player : t) (key : key) : t =
         dir
     | None -> player.move_direction
   in
-  let new_pos = add_position player.position (direction_to_delta direction) in
+  let new_pos =
+    add_position player.position (direction_to_delta direction) player.speed
+    |> get_in_map_position
+  in
   player.position <- check_collsion direction new_pos;
   player.move_counter <- (player.move_counter + 1) mod player_sprite_num;
   update_sprite player;
-  update_fruit_bullet player key;
-  (* print_endline (string_of_player player); *)
-  player
+  update_fruit_bullet player key
 
 let check_alive (player : t) : bool =
-  match player.player_state with Dead -> false | _ -> true
+  not (equal_player_state player.player_state Dead)
 
 let get_sprite (player : t) : int * int = player.sprite
 
