@@ -1,5 +1,8 @@
 open Core
 
+type fruit_type = Common.fruit_type
+[@@deriving equal]
+
 type item =
   | Wall
   | Ground
@@ -7,7 +10,7 @@ type item =
   | Orb
   | BigOrb
   | Player
-  | Fruit of Fruit.fruit_type
+  | Fruit of fruit_type
 [@@deriving equal]
 
 type t = item array array ref
@@ -26,9 +29,9 @@ let load filename =
     | "P" -> Enemy
     | "O" -> Enemy
     | "C" -> Player
-    | "F" -> Fruit Fruit.Cherry
-    | "G" -> Fruit Fruit.Strawberry
-    | "H" -> Fruit Fruit.Orange
+    | "F" -> Fruit Cherry
+    | "G" -> Fruit Strawberry
+    | "H" -> Fruit Orange
     | _ -> failwith "Invalid Map"
   in
   try
@@ -40,7 +43,7 @@ let load filename =
     true
   with _ -> false
 
-let load_from_data input_data = 
+let load_from_data input_data =
   data := Array.copy !input_data;
   raw_data := Array.copy !data
 
