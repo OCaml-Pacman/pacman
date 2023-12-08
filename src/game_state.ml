@@ -13,15 +13,12 @@ type t = {
   mutable state : state;
   mutable enemy_scared : bool;
   mutable enemy_scared_timer : int;
-  fruits : Fruit.t list;
+  mutable fruits : Fruit.t list;
 }
 
-let get_player (state:t) : Player.t =
-  state.player
-let get_enemies (state:t) : enemy list =
-  state.enemys
-let get_fruits (state:t) : Fruit.t list =
-  state.fruits
+let get_player (state : t) : Player.t = state.player
+let get_enemies (state : t) : enemy list = state.enemys
+let get_fruits (state : t) : Fruit.t list = state.fruits
 
 let init_game_state (player : Player.t) (fruits : Fruit.t list)
     (enemys : enemy list) =
@@ -34,6 +31,11 @@ let init_game_state (player : Player.t) (fruits : Fruit.t list)
     enemy_scared = false;
     enemy_scared_timer = 0;
   }
+
+(* the inital coordinates to put the game objects *)
+(* let init_pos_player = (0.0, 0.0)
+   let init_pos_fruits = (20.0, 20.0)
+   let init_pos_enemy = (50.0, 50.0) *)
 let enemy_scared_time = 200
 
 (* get the scores when the ghost is eaten *)
@@ -44,8 +46,7 @@ let get_ghost_score (ghosts_eaten : enemy_type) : int =
   | Orange -> 800
   | Pink -> 1600
 
-let get_score state = 
-  state.score
+let get_score state = state.score
 
 let get_enemy_update (enemy : enemy) (player_pos : float * float) : enemy =
   match enemy.enemy_type with
@@ -58,10 +59,18 @@ let new_game () =
   Printf.eprintf "[INFO] New game\n";
   Game_map.reload ();
   (* let (rx, ry) = Game_map.get_size () in *)
-  let new_player = Player.create @@ (Game_map.find_player () |> Option.value_exn) in
-  let new_enemy = Game_map.find_enemies () |>  List.map ~f:(fun pos -> Red_enemy.create pos) in
-  let new_fruits = Game_map.find_fruits () |> List.map ~f:(fun pos -> Fruit.create pos Cherry) in
-  Game_map.remove_player (); Game_map.remove_fruits(); Game_map.remove_enemies ();
+  let new_player =
+    Player.create @@ (Game_map.find_player () |> Option.value_exn)
+  in
+  let new_enemy =
+    Game_map.find_enemies () |> List.map ~f:(fun pos -> Red_enemy.create pos)
+  in
+  let new_fruits =
+    Game_map.find_fruits () |> List.map ~f:(fun pair -> Fruit.create (fst pair) (snd pair))
+  in
+  Game_map.remove_player ();
+  Game_map.remove_fruits ();
+  Game_map.remove_enemies ();
   init_game_state new_player new_fruits new_enemy
 
 (*[check_overlap user_pos ghost] will return true if the distance between the
@@ -95,7 +104,7 @@ let check_enemy_state (cur_player : Player.t) (cur_enemy : enemy)
 (* check whether the current position has object, normal object will add one points to total score.
    Big object will change enemy to scared state *)
 let check_object_overlap (cur_player : Player.t) (cur_state : t) =
-  let (px,py) = cur_player.position in
+  let px, py = cur_player.position in
   let judgeP = (Float.add px 0.5, Float.add py 0.5) in
   let obj = Game_map.get_location judgeP in
   match obj with
@@ -125,9 +134,15 @@ let check_fruit_overlap (player_pos : float * float) (fruit : Fruit.t) : bool =
   Float.( <= ) dist check_distance
 
 
-let check_fruit_state (player : Player.t) (fruit : Fruit.t) =
-  if check_fruit_overlap player.position fruit then fruit.fruit_state <- Eaten
+let check_fruit_state (player : Player.t) (fruit : Fruit.t) (cur_state : t) =
+  if check_fruit_overlap player.position fruit then (
+    cur_state.score <- cur_state.score + 2;
+    Player.eat_fruit player fruit.fruit_type;
+    fruit.fruit_state <- Eaten)
   else ()
+
+let is_fruit_left (fruit : Fruit.t) : bool =
+  match fruit.fruit_state with Eaten -> false | Left -> true
 
 (* Transfer the Some/None type to Key/None type *)
 let trans_key_option input_key =
@@ -151,7 +166,6 @@ let check_win cur_state =
     cur_state)
   else cur_state
 
-
 let update_active input_key cur_state =
   let cur_player = cur_state.player in
   let cur_enemys = cur_state.enemys in
@@ -159,7 +173,8 @@ let update_active input_key cur_state =
   List.iter cur_enemys ~f:(fun enemy ->
       check_enemy_state cur_player enemy cur_state);
   List.iter cur_state.fruits ~f:(fun fruit ->
-      check_fruit_state cur_player fruit);
+      check_fruit_state cur_player fruit cur_state);
+  cur_state.fruits <- List.filter cur_state.fruits ~f:is_fruit_left;
   check_object_overlap cur_player cur_state;
   if check_alive cur_player then (
     (* update enemy should happen before update player since the enmey needs player previous movement *)
@@ -174,20 +189,12 @@ let update_active input_key cur_state =
   else cur_state.state <- Lose;
   cur_state
 
-let update (input_key : char option) (current_state : t)  : t =
+let update (input_key : char option) (current_state : t) : t =
   let current_state = check_scared_time_state current_state in
   let current_state = check_win current_state in
   match current_state.state with
   | Active -> update_active input_key current_state
-  | Lose -> (
-    match input_key with
-    | Some _ -> new_game ()
-    | _ -> current_state
-  )
-  | Win -> (
-    match input_key with
-    | Some _ -> new_game ()
-    | _ -> current_state
-  )
+  | Lose -> ( match input_key with Some _ -> new_game () | _ -> current_state)
+  | Win -> ( match input_key with Some _ -> new_game () | _ -> current_state)
 
-let get_state (current_state : t) : state = current_state.state 
+let get_state (current_state : t) : state = current_state.state

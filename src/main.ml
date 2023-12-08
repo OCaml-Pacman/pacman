@@ -11,12 +11,12 @@ let rec game_loop state =
       (* Draw Basemap *)
       Render.draw_map ();
       (* Draw enemies *)
-      Game_state.get_enemies new_state
-      |> List.iter ~f:(fun (e : Enemy.enemy) ->
-             Render.draw_sprite e.sprite @@ Render.coord_map2screen e.position);
       Game_state.get_fruits new_state
       |> List.iter ~f:(fun (f : Fruit.t) ->
              Render.draw_sprite f.sprite @@ Render.coord_map2screen f.position);
+      Game_state.get_enemies new_state
+      |> List.iter ~f:(fun (e : Enemy.enemy) ->
+             Render.draw_sprite e.sprite @@ Render.coord_map2screen e.position);
       (* Draw Player *)
       let p = Game_state.get_player new_state in
       Render.draw_sprite p.sprite @@ Render.coord_map2screen p.position;
