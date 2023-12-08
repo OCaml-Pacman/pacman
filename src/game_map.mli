@@ -8,7 +8,7 @@ type item =
   | Orb       (** Represents an Orb. *)
   | BigOrb    (** Represents a Big Orb. *)
   | Player    (** Represents the Player. *)
-  | Fruit of Fruit.fruit_type    (** Represents a Fruit. *)
+  | Fruit of Common.fruit_type    (** Represents a Fruit. *)
 
 (** The type [t] represents the game map or environment. *)
 type t
@@ -42,7 +42,7 @@ val find_player : unit -> (float * float) option
 val find_enemies : unit -> (float * float) list
 
 (** [find_fruits ()] returns a list of coordinates of all fruits in the map. *)
-val find_fruits : unit -> ((float * float) * Fruit.fruit_type) list
+val find_fruits : unit -> ((float * float) * Common.fruit_type) list
 
 (** [find_random_empty ()] returns the coordinates of a random empty space, if available, otherwise [None]. *)
 val find_random_empty : unit -> (float * float) option

@@ -7,11 +7,7 @@ type player_state =
   | Armed  (** Indicates the player is armed with fruit **)
 
 (** The [direction] type represents the direction in which the player can move. *)
-type direction =
-  | Up  (** Represents moving up. *)
-  | Down  (** Represents moving down. *)
-  | Left  (** Represents moving left. *)
-  | Right  (** Represents moving right. *)
+type direction = Common.direction
 
 (** The [key] type represents a key input by the player, with [None] for no input or [Key] for a specific character. *)
 type key =

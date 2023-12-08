@@ -1,18 +1,10 @@
 (** This module defines types and functions for handling fruit entities in a game. *)
 
 (** The [fruit_type] type represents the different types of fruits. *)
-type fruit_type =
-  | Cherry  (** Represents a Cherry fruit. *)
-  | Strawberry  (** Represents a Strawberry fruit. *)
-  | Orange  (** Represents an Orange fruit. *)
-[@@deriving equal]
+type fruit_type = Common.fruit_type
 
 (** The [direction] type represents the direction in which the fruit can move. *)
-type direction =
-  | Up  (** Represents moving up. *)
-  | Down  (** Represents moving down. *)
-  | Left  (** Represents moving left. *)
-  | Right  (** Represents moving right. *)
+type direction = Common.direction
 
 (** The [fruit_state] type represents the current state of a fruit. *)
 type fruit_state =
