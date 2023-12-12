@@ -4,7 +4,6 @@ let wall_sprite = (13, 9)
 let ground_sprite = (13,3)
 let orb_sprite = (13,1)
 let big_orb_sprite = (13,2)
-let enemy_sprite = (0,4)
 let player_sprite = (0,0);;
 
 Graphics.open_graph " 100x100"
@@ -99,7 +98,7 @@ let draw_map _ =
       match get_location map_loc with
         | Wall -> draw_sprite ~transp:false wall_sprite loc
         | Ground -> draw_sprite ~transp:false ground_sprite loc
-        | Enemy -> draw_sprite ~transp:false enemy_sprite loc
+        | Enemy enemy -> draw_sprite ~transp:false (Enemy.get_enemy_sprite_by_type enemy) loc
         | Orb -> draw_sprite ~transp:false orb_sprite loc
         | BigOrb -> draw_sprite ~transp:false big_orb_sprite loc
         | Player -> draw_sprite ~transp:false player_sprite loc

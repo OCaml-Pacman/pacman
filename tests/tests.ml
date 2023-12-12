@@ -200,7 +200,7 @@ let test_shot_fruit_to_enemy _ =
     ref
       [|
         [| Wall; Wall; Wall; Wall; Wall; Wall |];
-        [| Wall; Player; Fruit Orange; Orb; Enemy; Wall |];
+        [| Wall; Player; Fruit Orange; Orb; Enemy Red; Wall |];
         [| Wall; Wall; Wall; Wall; Wall; Wall |];
       |]
   in

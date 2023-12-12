@@ -4,7 +4,7 @@
 type item =
   | Wall      (** Represents a Wall. *)
   | Ground    (** Represents Ground. *)
-  | Enemy     (** Represents an Enemy. *)
+  | Enemy of Common.enemy_type    (** Represents an Enemy. *)
   | Orb       (** Represents an Orb. *)
   | BigOrb    (** Represents a Big Orb. *)
   | Player    (** Represents the Player. *)
@@ -39,7 +39,7 @@ val get_item_count: item -> int
 val find_player : unit -> (float * float) option
 
 (** [find_enemies ()] returns a list of coordinates of all enemies in the map. *)
-val find_enemies : unit -> (float * float) list
+val find_enemies : unit -> ((float * float) * Common.enemy_type) list
 
 (** [find_fruits ()] returns a list of coordinates of all fruits in the map. *)
 val find_fruits : unit -> ((float * float) * Common.fruit_type) list

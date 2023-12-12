@@ -1,11 +1,8 @@
 (** This module defines types and modules for handling enemy entities in a game. *)
 
 (** The [enemy_type] type represents the different types of enemies. *)
-type enemy_type = 
-  | Red      (** Represents a Red enemy. *)
-  | Blue     (** Represents a Blue enemy. *)
-  | Orange   (** Represents an Orange enemy. *)
-  | Pink     (** Represents a Pink enemy. *)
+type enemy_type = Common.enemy_type
+
 
 (** The [enemy_state] type represents the current state of an enemy. *)
 type enemy_state = 
@@ -55,3 +52,5 @@ module Orange_enemy : Enemy
 
 (** [Pink_enemy] is a module for handling Pink enemies. *)
 module Pink_enemy : Enemy 
+
+val get_enemy_sprite_by_type : enemy_type -> int * int

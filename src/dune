@@ -22,7 +22,8 @@
   game_map
   imagelib.unix
   graphics
-  fruit)
+  fruit
+  enemy)
  (preprocess
   (pps ppx_jane bisect_ppx)))
 
@@ -36,7 +37,7 @@
 (library
  (name enemy)
  (modules enemy)
- (libraries core game_map)
+ (libraries core game_map common)
  (preprocess
   (pps ppx_jane bisect_ppx)))
 

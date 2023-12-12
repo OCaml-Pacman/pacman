@@ -3,10 +3,13 @@ open Core
 type fruit_type = Common.fruit_type
 [@@deriving equal]
 
+type enemy_type = Common.enemy_type
+[@@deriving equal]
+
 type item =
   | Wall
   | Ground
-  | Enemy
+  | Enemy of enemy_type
   | Orb
   | BigOrb
   | Player
@@ -24,10 +27,10 @@ let load filename =
     | "#" -> Wall
     | "." -> Orb
     | "*" -> BigOrb
-    | "R" -> Enemy
-    | "B" -> Enemy
-    | "P" -> Enemy
-    | "O" -> Enemy
+    | "R" -> Enemy Red
+    | "B" -> Enemy Blue
+    | "P" -> Enemy Pink
+    | "O" -> Enemy Orange
     | "C" -> Player
     | "F" -> Fruit Cherry
     | "G" -> Fruit Strawberry
@@ -78,12 +81,18 @@ let find_player () =
             found := Some (Float.of_int x, Float.of_int y)));
   !found
 
+
+let is_enemy (item : item) : bool =
+  match item with Enemy _ -> true | _ -> false  
+
 let find_enemies () =
   let enemies = ref [] in
   Array.iteri data.contents ~f:(fun y row ->
       Array.iteri row ~f:(fun x item ->
-          if equal_item item Enemy then
-            enemies := (Float.of_int x, Float.of_int y) :: !enemies));
+          match item with
+          | Enemy enemy -> 
+            enemies := ((Float.of_int x, Float.of_int y), enemy) :: !enemies
+          | _ -> ()));
   !enemies
 
 let is_fruit (item : item) : bool =
@@ -119,7 +128,7 @@ let remove_player () =
 let remove_enemies () =
   Array.iteri data.contents ~f:(fun y row ->
       Array.iteri row ~f:(fun x item ->
-          if equal_item item Enemy then data.contents.(y).(x) <- Ground))
+          if is_enemy item then data.contents.(y).(x) <- Ground))
 
 let remove_fruits () =
   Array.iteri data.contents ~f:(fun y row ->

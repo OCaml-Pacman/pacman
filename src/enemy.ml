@@ -1,7 +1,7 @@
 open Core
+open Common
 
-type enemy_type = Red | Blue | Orange | Pink
-
+type enemy_type = Common.enemy_type
 type enemy_state = Active | Scared | Dead
 
 type enemy = {
@@ -30,7 +30,20 @@ let helper_dir int_direction =
   | 3 -> Up
   | _ -> failwith "invalid int of direction"
 
+let match_dir_to_int direction = 
+  match direction with
+  | Right -> 0
+  | Left -> 1
+  | Down -> 2
+  | Up -> 3
 
+let get_enemy_sprite_by_type enemy = 
+  match enemy with
+  | Pink -> (0,5)
+  | Red -> (0,4)
+  | Blue ->(0,6)
+  | Orange -> (0,7)
+  
 let check_collsion int_direction pos = 
   let direction = helper_dir int_direction in 
   let (x,y) = pos in
@@ -56,7 +69,13 @@ let check_collsion int_direction pos =
     | Right, _, Wall, _, _ -> roundPos
     | Right, _, _, _, Wall -> roundPos
     | _ -> pos
-  
+
+let is_wall (pos : float * float) : bool =
+  let pos2 = (fst pos +. 0.95, snd pos +. 0.95) in
+  match (Game_map.get_location pos, Game_map.get_location pos2) with
+  | Wall, _ -> true
+  | _, Wall -> true
+  | _ -> false
 
 module type SetEnemyType = sig
   type t = enemy
@@ -119,11 +138,10 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
         let dx, dy = match_dir_to_ind d in
         let next_x = (fst cur_e.position) +. (dx *. scared_speed) in
         let next_y = (snd cur_e.position) +. (dy *. scared_speed) in
-        match Game_map.get_location (next_x, next_y) with
-          | Game_map.Wall -> aux ((d+1) mod 4)
-          | _ ->     
-            cur_e.position <- check_collsion d (next_x, next_y);
-            cur_e.move_direction <- d
+        if is_wall (next_x, next_y) then aux ((d+1) mod 4)
+        else 
+          (cur_e.position <- check_collsion d (next_x, next_y);
+          cur_e.move_direction <- d)            
       in aux cur_e.move_direction;
       (* find the corrsponding sprite *)
       let scared_coordinates = [(8, 4); (9, 4)] in
@@ -145,40 +163,99 @@ module Set_red_enemy : SetEnemyType = struct
   let get_sprite = [[(0, 4); (1, 4)]; [(2, 4); (3, 4)];  [(6, 4); (7, 4)]; [(4, 4); (5, 4)]]
   let enemy_speed = 0.04
   let change_counter = ref 1
+
   let move (cur_e : t) (player_pos : (float * float)) : t =  
     let rec aux () = 
       let selected_dir = (Random.self_init (); Random.int 4) in 
       let tempx, tempy = player_pos in
       let dx, dy = match_dir_to_ind selected_dir in
-      let check_x = (fst cur_e.position) +. dx in
-      let check_y = (snd cur_e.position) +. dy in 
-       match Game_map.get_location (check_x, check_y) with
-       | Game_map.Wall -> aux ()
-       | _ ->
-        let next_x = (fst cur_e.position) +. (dx *. enemy_speed) +. 0.0 *. tempx in
-        let next_y = (snd cur_e.position) +. (dy *. enemy_speed) +. 0.0 *. tempy in     
-         cur_e.position <- check_collsion selected_dir (next_x, next_y);
-         cur_e.move_direction <- selected_dir;
-         cur_e
-       in
+      let next_x = (fst cur_e.position) +. (dx *. enemy_speed) +. 0.0 *. tempx in
+      let next_y = (snd cur_e.position) +. (dy *. enemy_speed) +. 0.0 *. tempy in             
+        if is_wall (next_x, next_y) then aux ()
+        else 
+          (cur_e.position <- check_collsion selected_dir (next_x, next_y);
+          cur_e.move_direction <- selected_dir;
+          cur_e)
+        in
     let d = cur_e.move_direction in
     let dx, dy = match_dir_to_ind d in
-    let check_x = (fst cur_e.position) +. dx in
-    let check_y = (snd cur_e.position) +. dy in
+    let next_x = (fst cur_e.position) +. (dx *. enemy_speed) in
+    let next_y = (snd cur_e.position) +. (dy *. enemy_speed) in
     if (!change_counter) mod 30 = 0 then 
       (change_counter := 1;
       aux ())
     else 
     (
       change_counter := !change_counter + 1;  
-      match Game_map.get_location (check_x, check_y) with
-      | Game_map.Wall -> aux ()
-      | _ ->
-        let next_x = (fst cur_e.position) +. (dx *. enemy_speed) in
-        let next_y = (snd cur_e.position) +. (dy *. enemy_speed) in
-        cur_e.position <- check_collsion d (next_x, next_y);
+      (* match Game_map.get_location  (check_x, check_y) with *)
+      if is_wall (next_x, next_y) then aux ()
+      else 
+        (cur_e.position <- check_collsion d (next_x, next_y);
         cur_e)
-    
+    )
+end
+
+module Set_pink_enemy : SetEnemyType = struct
+  type t = enemy
+  (* Pink enemy move to the direction closest to pacman  *)
+  let get_enemytype = Pink
+  let get_sprite = [[(0, 5); (1, 5)]; [(2, 5); (3, 5)]; [(4, 5); (5, 5)]; [(6, 5); (7, 5)]]
+  let enemy_speed = 0.04
+  let change_counter = ref 1
+
+
+  let get_distance (player_pos : float * float) (enemy_pos : float * float) : float =
+    let ghost_x = fst enemy_pos in
+    let ghost_y = snd enemy_pos in
+    let user_x = fst player_pos in
+    let user_y = snd player_pos in
+    let dx = user_x -. ghost_x in
+    let dy = user_y -. ghost_y in
+    sqrt ((dx *. dx) +. (dy *. dy))
+  
+  let change_direction (enemy_pos : float * float) (dir:direction) : (float * float) = 
+    let dx, dy = dir |> match_dir_to_int |> match_dir_to_ind  in
+    let next_x = (fst enemy_pos) +. dx in
+    let next_y = (snd enemy_pos) +. dy in 
+    (next_x, next_y)
+
+  let get_best_dir (player_pos : float * float) (enemy_pos : float * float) : direction = 
+    let dir_list = [Up;Down;Right;Left] in
+    let all_dist = List.map dir_list ~f:(fun d -> (d, get_distance player_pos (change_direction enemy_pos d))) in
+    let best_dir = List.fold all_dist ~init:(List.nth_exn all_dist 0) ~f:(fun acc -> fun x -> 
+      if Float.(<=) (snd acc) (snd x) then acc else x) in 
+      fst best_dir
+
+  let move (cur_e : t) (player_pos : (float * float)) : t =  
+    let rec aux is_random = 
+      let selected_dir = 
+        if is_random then (Random.self_init (); Random.int 4)
+        else match_dir_to_int (get_best_dir player_pos cur_e.position) 
+      in
+      let dx, dy = match_dir_to_ind selected_dir in
+      let next_x = (fst cur_e.position) +. (dx *. enemy_speed)  in
+      let next_y = (snd cur_e.position) +. (dy *. enemy_speed)  in
+      if is_wall (next_x, next_y) then aux true
+      else     
+         (cur_e.position <- check_collsion selected_dir (next_x, next_y);
+         cur_e.move_direction <- selected_dir;
+         cur_e)
+       in 
+       let d = cur_e.move_direction in
+       let dx, dy = match_dir_to_ind d in
+       let next_x = (fst cur_e.position) +. (dx *. enemy_speed) in
+       let next_y = (snd cur_e.position) +. (dy *. enemy_speed) in
+       if (!change_counter) mod 50 = 0 then 
+         (change_counter := 1;
+          aux false)
+       else 
+       (
+         change_counter := !change_counter + 1;  
+         if is_wall (next_x, next_y) then aux false
+         else 
+           (cur_e.position <- check_collsion d (next_x, next_y);
+           cur_e)
+       )
   
 end
 
@@ -188,4 +265,4 @@ module Blue_enemy : Enemy = MakeEnemy(Set_red_enemy)
 
 module Orange_enemy : Enemy = MakeEnemy(Set_red_enemy)
 
-module Pink_enemy : Enemy = MakeEnemy(Set_red_enemy)
+module Pink_enemy : Enemy = MakeEnemy(Set_pink_enemy)

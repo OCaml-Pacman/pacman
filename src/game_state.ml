@@ -55,6 +55,13 @@ let get_enemy_update (enemy : enemy) (player_pos : float * float) : enemy =
   | Orange -> Orange_enemy.update enemy player_pos
   | Pink -> Pink_enemy.update enemy player_pos
 
+let enemy_create (enemy : enemy_type) (init_pos : float * float) : enemy =
+  match enemy with
+  | Red -> Red_enemy.create init_pos
+  | Blue -> Blue_enemy.create init_pos
+  | Orange -> Orange_enemy.create init_pos
+  | Pink -> Pink_enemy.create init_pos
+
 let new_game () =
   Printf.eprintf "[INFO] New game\n";
   Game_map.reload ();
@@ -63,7 +70,7 @@ let new_game () =
     Player.create @@ (Game_map.find_player () |> Option.value_exn)
   in
   let new_enemy =
-    Game_map.find_enemies () |> List.map ~f:(fun pos -> Red_enemy.create pos)
+    Game_map.find_enemies () |> List.map ~f:(fun pair -> enemy_create (snd pair) (fst pair))
   in
   let new_fruits =
     Game_map.find_fruits ()

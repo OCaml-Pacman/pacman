@@ -11,3 +11,13 @@ type direction =
   | Down  (** Represents moving down. *)
   | Left  (** Represents moving left. *)
   | Right  (** Represents moving right. *)
+
+
+(** The [enemy_type] type represents the different types of enemies. *)
+type enemy_type = 
+  | Red      (** Represents a Red enemy. *)
+  | Blue     (** Represents a Blue enemy. *)
+  | Orange   (** Represents an Orange enemy. *)
+  | Pink     (** Represents a Pink enemy. *)
+  [@@deriving equal]
+  
