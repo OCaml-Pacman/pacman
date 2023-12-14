@@ -13,7 +13,9 @@ type enemy = {
     mutable sprite : int * int; 
     init_pos : float * float;
 }
-type direction = Up | Down | Left | Right
+
+type direction = Up | Down | Left | Right [@@deriving equal, compare, sexp]
+
 let match_dir_to_ind dir = 
   match dir with
   | 0 -> (1.0, 0.0)
@@ -158,7 +160,7 @@ end
 
 module Set_red_enemy : SetEnemyType = struct
   type t = enemy
-  (* Red enemy move randomly  *)
+  (* Red enemy move randomly *)
   let get_enemytype = Red
   let get_sprite = [[(0, 4); (1, 4)]; [(2, 4); (3, 4)];  [(6, 4); (7, 4)]; [(4, 4); (5, 4)]]
   let enemy_speed = 0.04
@@ -197,21 +199,18 @@ end
 
 module Set_pink_enemy : SetEnemyType = struct
   type t = enemy
-  (* Pink enemy move to the direction closest to pacman  *)
+  (* Pink enemy move to the direction closest to pacman (Manhattan distance) every 50 renders *)
   let get_enemytype = Pink
-  let get_sprite = [[(0, 5); (1, 5)]; [(2, 5); (3, 5)]; [(4, 5); (5, 5)]; [(6, 5); (7, 5)]]
+  let get_sprite = [[(0, 5); (1, 5)]; [(2, 5); (3, 5)]; [(6, 5); (7, 5)];[(4, 5); (5, 5)]; ]
   let enemy_speed = 0.04
   let change_counter = ref 1
-
 
   let get_distance (player_pos : float * float) (enemy_pos : float * float) : float =
     let ghost_x = fst enemy_pos in
     let ghost_y = snd enemy_pos in
     let user_x = fst player_pos in
     let user_y = snd player_pos in
-    let dx = user_x -. ghost_x in
-    let dy = user_y -. ghost_y in
-    sqrt ((dx *. dx) +. (dy *. dy))
+    Float.abs (ghost_x -. user_x) +. Float.abs (ghost_y -. user_y)
   
   let change_direction (enemy_pos : float * float) (dir:direction) : (float * float) = 
     let dx, dy = dir |> match_dir_to_int |> match_dir_to_ind  in
@@ -259,10 +258,143 @@ module Set_pink_enemy : SetEnemyType = struct
   
 end
 
+module BFS = struct
+
+  type node = {
+    position : float * float;
+    parent : node option;
+    direction_from_parent: direction;
+  } [@@deriving equal, compare, sexp]
+
+  let create_node position direction_from_parent parent = {
+    position;
+    direction_from_parent;
+    parent;
+  }
+
+  module Position = struct
+    type t = float * float [@@deriving equal, compare, sexp]
+  end
+  
+  module PositionSet = Set.Make(Position)
+      
+  let check_position_equal player_pos enemy_pos =
+    let ghost_x = fst enemy_pos in
+      let ghost_y = snd enemy_pos in
+      let user_x = fst player_pos in
+      let user_y = snd player_pos in
+      let check_distance = 0.5 in
+      let dx = user_x -. ghost_x in
+      let dy = user_y -. ghost_y in
+      let dist = sqrt ((dx *. dx) +. (dy *. dy)) in
+      Float.( <= ) dist check_distance
+
+    let get_neighbors node =
+      let x, y = node.position in
+      [
+        ((x +. 1.0, y), Right); 
+        ((x -. 1.0, y), Left);
+        ((x , y +. 1.0), Down);
+        ((x , y -. 1.0), Up);]
+      |> List.filter ~f: (fun pos -> 
+        let x_max, y_max = Game_map.get_size () in
+        if ((Float.between (fst (fst pos)) ~low:0.0  ~high: (x_max-.1.0))
+          && (Float.between (snd (fst pos)) ~low:0.0  ~high: (y_max-.1.0)))
+        then (if is_wall (fst pos) then false else true)
+        else false)
+        
+
+    let bfs start_pos end_pos =
+      let rec loop queue visited =
+        if Deque.is_empty queue then None
+        else 
+          (
+          let head = Deque.dequeue_front_exn queue in
+          let pos = head.position in
+          if check_position_equal pos end_pos then
+            ( Some head ) (* Path found *)
+          else if Set.mem visited pos then
+            loop queue visited
+          else
+            let new_visited = Set.add visited pos in
+            let neighbors = get_neighbors head in
+            List.iter neighbors ~f:(fun ((nx, ny), dir) -> 
+              let temp = create_node (nx, ny) dir (Some head) in
+              Deque.enqueue_back queue temp; );
+            loop queue new_visited)
+      in
+      let visited_set = PositionSet.empty in
+      let node_queue = Deque.create () in
+      Deque.enqueue_front node_queue (create_node start_pos Up None);
+      loop node_queue visited_set
+
+  let rec trace_back_for_direction node =
+    match node.parent with
+    | None -> node.direction_from_parent 
+    | Some parent -> 
+        match parent.parent with
+        | None -> node.direction_from_parent
+        | Some _ -> trace_back_for_direction parent
+
+        let get_best_dir (player_pos : float * float) (enemy_pos : float * float) : direction = 
+          let find_end = bfs (Float.round_nearest (fst enemy_pos), Float.round_nearest (snd enemy_pos)) 
+          (Float.round_nearest (fst player_pos), Float.round_nearest (snd player_pos)) in
+          match find_end with
+          | Some e ->
+            trace_back_for_direction e 
+          | None -> 
+            helper_dir (Random.self_init (); Random.int 4) 
+
+  
+end
+
+module Set_blue_enemy : SetEnemyType = struct
+  type t = enemy
+  (* Blue enemy uses BFS to choose the bst direction to chase pacman *)
+  include BFS
+  let get_enemytype = Blue
+  let get_sprite = [[(0, 6); (1, 6)]; [(2, 6); (3, 6)]; [(6, 6); (7, 6)]; [(4, 6); (5, 6)]; ]
+  let enemy_speed = 0.04
+
+  let move (cur_e : t) (player_pos : (float * float)) : t =  
+      let selected_dir = match_dir_to_int (get_best_dir player_pos cur_e.position) in
+      let dx, dy = match_dir_to_ind selected_dir in
+      let next_x = (fst cur_e.position) +. (dx *. enemy_speed)  in
+      let next_y = (snd cur_e.position) +. (dy *. enemy_speed)  in
+         (cur_e.position <- check_collsion selected_dir (next_x, next_y);
+         cur_e.move_direction <- selected_dir;
+         cur_e)
+end
+
+module Set_orange_enemy : SetEnemyType = struct
+  type t = enemy
+  (* Blue enemy uses BFS to chase Pacman and increase the speed over time *)
+  include BFS
+  let get_enemytype = Orange
+  let get_sprite =   [[(0, 7); (1, 7)]; [(2, 7); (3, 7)]; [(6, 7); (7, 7)]; [(4, 7); (5, 7)]; ]
+  let enemy_speed = ref 0.04
+
+  let speed_timer = ref 1
+
+  let move (cur_e : t) (player_pos : (float * float)) : t =  
+    (if (!speed_timer) mod 50 = 0 then 
+      ( speed_timer := 1;
+        enemy_speed := !enemy_speed +. 0.005;  )
+    else (speed_timer := !speed_timer + 1));
+    let selected_dir = match_dir_to_int (get_best_dir player_pos cur_e.position) in
+    let dx, dy = match_dir_to_ind selected_dir in
+    let next_x = (fst cur_e.position) +. (dx *. !enemy_speed)  in
+    let next_y = (snd cur_e.position) +. (dy *. !enemy_speed)  in
+       cur_e.position <- check_collsion selected_dir (next_x, next_y);
+       cur_e.move_direction <- selected_dir;
+       cur_e
+
+end
+
 module Red_enemy : Enemy = MakeEnemy(Set_red_enemy)
 
-module Blue_enemy : Enemy = MakeEnemy(Set_red_enemy)
+module Blue_enemy : Enemy = MakeEnemy(Set_blue_enemy)
 
-module Orange_enemy : Enemy = MakeEnemy(Set_red_enemy)
+module Orange_enemy : Enemy = MakeEnemy(Set_orange_enemy)
 
 module Pink_enemy : Enemy = MakeEnemy(Set_pink_enemy)
