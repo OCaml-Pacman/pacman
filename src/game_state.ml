@@ -70,7 +70,8 @@ let new_game () =
     Player.create @@ (Game_map.find_player () |> Option.value_exn)
   in
   let new_enemy =
-    Game_map.find_enemies () |> List.map ~f:(fun pair -> enemy_create (snd pair) (fst pair))
+    Game_map.find_enemies ()
+    |> List.map ~f:(fun pair -> enemy_create (snd pair) (fst pair))
   in
   let new_fruits =
     Game_map.find_fruits ()
@@ -104,7 +105,7 @@ let check_enemy_state (cur_player : Player.t) (cur_enemy : enemy)
   | true, Active -> cur_player.player_state <- Player.Dead
   | false, Active -> ()
   | true, Scared ->
-      cur_enemy.enemy_state <- Dead;
+      kill_enemy cur_enemy;
       cur_state.score <- cur_state.score + get_ghost_score cur_enemy.enemy_type
   | false, Scared -> ()
   | _, Dead -> ()
@@ -146,7 +147,7 @@ let check_fruit_state (player : Player.t) (fruit : Fruit.t) (cur_state : t) =
     match fruit.fruit_state with
     | Left ->
         cur_state.score <- cur_state.score + 2;
-        Player.eat_fruit player fruit.fruit_type;
+        Player.eat_fruit player fruit;
         fruit.fruit_state <- Eaten
     | _ -> ()
   else ()
@@ -156,7 +157,7 @@ let enemy_versus_fruit (enemy : enemy) (fruit : Fruit.t) (cur_state : t) : unit
   if check_enemy_overlap fruit.position enemy then
     match fruit.fruit_state with
     | Bullet ->
-        enemy.enemy_state <- Dead;
+        kill_enemy enemy;
         cur_state.score <- cur_state.score + get_ghost_score enemy.enemy_type;
         fruit.fruit_state <- Eaten
     | _ -> ()
@@ -176,15 +177,12 @@ let trans_key_option input_key =
 
 (* check the timeout of scared enemy *)
 let check_scared_time_state cur_state =
-  if cur_state.enemy_scared then (
+  if cur_state.enemy_scared then
     cur_state.enemy_scared_timer <- cur_state.enemy_scared_timer + 1;
-    if cur_state.enemy_scared_timer > enemy_scared_time then (
-      cur_state.enemy_scared_timer <- 0;
-      cur_state.enemy_scared <- false);
-    cur_state)
-  else (
-    cur_state.enemys |> List.iter ~f:(fun enemy -> enemy.enemy_state <- Active);
-    cur_state)
+  if cur_state.enemy_scared_timer > enemy_scared_time then (
+    cur_state.enemy_scared_timer <- 0;
+    cur_state.enemy_scared <- false);
+  cur_state
 
 let check_win cur_state =
   if Game_map.get_item_count Orb = 0 then (

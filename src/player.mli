@@ -23,7 +23,7 @@ type t = {
   mutable move_direction : direction;
       (** The direction of the player's movement. *)
   mutable sprite : int * int;  (** Sprite position for the player. *)
-  mutable fruits : Fruit.fruit_type list;
+  mutable fruits : Fruit.t list;
       (** The fruits that player currently have **)
   mutable fruit_bullet : Fruit.t option;
 }
@@ -43,4 +43,4 @@ val check_alive : t -> bool
 val get_sprite : t -> int * int
 (** [get_sprite player] returns the sprite of the player [player]. *)
 
-val eat_fruit : t -> Fruit.fruit_type -> unit
+val eat_fruit : t -> Fruit.t -> unit

@@ -10,7 +10,7 @@ let rec game_loop state =
   | Active ->
       (* Draw Basemap *)
       Render.draw_map ();
-      (* Draw enemies *)
+      (* Draw fruits and enemies *)
       Game_state.get_fruits new_state
       |> List.iter ~f:(fun (f : Fruit.t) ->
              Render.draw_sprite f.sprite @@ Render.coord_map2screen f.position);
@@ -22,9 +22,12 @@ let rec game_loop state =
       Render.draw_sprite p.sprite @@ Render.coord_map2screen p.position;
       Graphics.set_color Graphics.white;
       Graphics.moveto 0 0;
+      (* Draw player hold fruits *)
+      p.fruits
+      |> List.iter ~f:(fun (f : Fruit.t) ->
+             Render.draw_sprite f.sprite @@ Render.coord_map2screen f.position);
       (* Draw Score *)
-      Game_state.get_score new_state
-      |> Printf.sprintf "Score: %d" |> Graphics.draw_string
+      Game_state.get_score new_state |> Render.draw_score
   | Win ->
       (* Clear graph *)
       Graphics.clear_graph ();
@@ -77,7 +80,8 @@ let main ~map_file ~sprite_file =
 
 (* Start the game *)
 let () =
-  Command.basic_spec ~summary:"Start the PacMan with specified map and sprite files"
+  Command.basic_spec
+    ~summary:"Start the PacMan with specified map and sprite files"
     Command.Spec.(
       empty
       +> flag "-map"
