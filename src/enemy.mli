@@ -14,7 +14,7 @@ type enemy_state =
 type enemy = {
     mutable position : float * float;       (** The position of the enemy. *)
     mutable enemy_state : enemy_state;      (** The current state of the enemy. *)
-    enemy_type: enemy_type;         (** The type of the enemy. *)
+    enemy_type: enemy_type;                 (** The type of the enemy. *)
     mutable move_counter : int;             (** Counter for the enemy's movement. *)
     mutable move_direction : int;           (** Direction of the enemy's movement. *)
     mutable dead_timer : int;               (** The time since enemy dead **)
