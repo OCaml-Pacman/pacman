@@ -133,10 +133,11 @@ let test_update_enemy _ =
   assert_equal true @@ Float.( = ) 1.0 (fst updated_enemy3.position);
 
   let test_enemy4 = Red_enemy.create (1.0, 1.0) in
-  test_enemy4.move_direction <- 2;
+  test_enemy4.move_direction <- 1;
   let updated_enemy4 = Red_enemy.update test_enemy4 (0.0, 0.0) in
-  assert_equal 0 @@ updated_enemy4.move_direction
+  assert_equal 2 @@ updated_enemy4.move_direction
 
+  
 let enemy_tests =
   "Enemy Tests" >: test_list [ "test enemy" >:: test_update_enemy ]
 
