@@ -10,11 +10,14 @@ type enemy = {
     mutable enemy_type: enemy_type;
     mutable move_counter : int;
     mutable move_direction : int;
+    mutable dead_timer : int;
     mutable sprite : int * int; 
     init_pos : float * float;
 }
 
 type direction = Up | Down | Left | Right [@@deriving equal, compare, sexp]
+
+let enemy_resurrection_time = 100
 
 let match_dir_to_ind dir = 
   match dir with
@@ -45,6 +48,10 @@ let get_enemy_sprite_by_type enemy =
   | Red -> (0,4)
   | Blue ->(0,6)
   | Orange -> (0,7)
+
+let kill_enemy enemy =
+  enemy.enemy_state <- Dead;
+  enemy.dead_timer <- 0
   
 let check_collsion int_direction pos = 
   let direction = helper_dir int_direction in 
@@ -113,6 +120,7 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
     enemy_type = M.get_enemytype;
     move_counter = 0;
     move_direction = 0;
+    dead_timer = 0;
     sprite = get_sprite_by_dir 0 0 M.get_sprite;
     init_pos = init_pos;
   }
@@ -154,6 +162,10 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
     | Dead -> 
         cur_e.position <- cur_e.init_pos;
         cur_e.sprite <- (10, 4);
+        cur_e.dead_timer <- cur_e.dead_timer + 1;
+        if cur_e.dead_timer > enemy_resurrection_time then (
+          cur_e.enemy_state <- Active;
+          cur_e.dead_timer <- 0);
         cur_e
 
 end

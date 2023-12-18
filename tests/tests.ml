@@ -67,13 +67,15 @@ let test_map_data =
 let test_player_interact_fruit _ =
   load_from_data test_map_data;
   let player = Player.create (1.0, 1.0) ~speed:0.0 in
+  let cherry = Fruit.create (1.0, 1.0) Common.Cherry in
+  let starwberry = Fruit.create (2.0, 1.0) Common.Strawberry in
   Player.update player (Key 'd');
   assert_equal player.position @@ (1.0, 1.0);
   assert_equal player.player_state @@ Alive;
-  eat_fruit player Common.Cherry;
+  eat_fruit player cherry;
   assert_equal player.player_state @@ Armed;
   assert_equal (List.length player.fruits) @@ 1;
-  eat_fruit player Common.Strawberry;
+  eat_fruit player starwberry;
   assert_equal (List.length player.fruits) @@ 2;
   Player.update player (Key 'j');
   assert_equal (List.length player.fruits) @@ 1;
@@ -223,7 +225,7 @@ let test_shot_fruit_to_wall _ =
     ref
       [|
         [| Wall; Wall; Wall; Wall; Wall |];
-        [| Wall; Orb; Fruit Strawberry; Player; Wall |];
+        [| Wall; Orb; Fruit Cherry; Player; Wall |];
         [| Wall; Wall; Wall; Wall; Wall |];
       |]
   in

@@ -1,10 +1,10 @@
 (** This module defines types and functions for handling fruit entities in a game. *)
 
-(** The [fruit_type] type represents the different types of fruits. *)
 type fruit_type = Common.fruit_type
+(** The [fruit_type] type represents the different types of fruits. *)
 
-(** The [direction] type represents the direction in which the fruit can move. *)
 type direction = Common.direction
+(** The [direction] type represents the direction in which the fruit can move. *)
 
 (** The [fruit_state] type represents the current state of a fruit. *)
 type fruit_state =
@@ -19,6 +19,7 @@ type fruit = {
   mutable sprite : int * int;  (** Sprite position for the fruit. *)
   mutable fruit_type : fruit_type;  (** The type of the fruit. *)
   mutable fruit_state : fruit_state;  (** The current state of the fruit. *)
+  mutable hit_counter : int;  (** How many times fruit hit the wall **)
 }
 (** The [fruit] type represents a fruit with various attributes. *)
 

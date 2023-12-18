@@ -17,9 +17,13 @@ type enemy = {
     mutable enemy_type: enemy_type;         (** The type of the enemy. *)
     mutable move_counter : int;             (** Counter for the enemy's movement. *)
     mutable move_direction : int;           (** Direction of the enemy's movement. *)
+    mutable dead_timer : int;               (** The time since enemy dead **)
     mutable sprite : int * int;             (** Sprite position for the enemy. *)
     init_pos : float * float;               (** Initial position of the enemy. *)
 }
+
+(** [kill_enemy] will a let a enemy dead **)
+val kill_enemy : enemy -> unit
 
 (** [SetEnemyType] is a module type that defines operations on enemy types. *)
 module type SetEnemyType = sig
