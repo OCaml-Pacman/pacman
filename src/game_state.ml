@@ -36,15 +36,15 @@ let init_game_state (player : Player.t) (fruits : Fruit.t list)
 (* let init_pos_player = (0.0, 0.0)
    let init_pos_fruits = (20.0, 20.0)
    let init_pos_enemy = (50.0, 50.0) *)
-let enemy_scared_time = 200
+let enemy_scared_time = 100
 
 (* get the scores when the ghost is eaten *)
 let get_ghost_score (ghosts_eaten : enemy_type) : int =
   match ghosts_eaten with
-  | Red -> 200
-  | Blue -> 400
-  | Orange -> 800
-  | Pink -> 1600
+  | Red -> 20
+  | Blue -> 40
+  | Orange -> 50
+  | Pink -> 30
 
 let get_score state = state.score
 
@@ -181,7 +181,12 @@ let check_scared_time_state cur_state =
     cur_state.enemy_scared_timer <- cur_state.enemy_scared_timer + 1;
   if cur_state.enemy_scared_timer > enemy_scared_time then (
     cur_state.enemy_scared_timer <- 0;
-    cur_state.enemy_scared <- false);
+    cur_state.enemy_scared <- false;
+    cur_state.enemys
+      |> List.iter ~f:(fun enemy -> 
+        match enemy.enemy_state with
+        | Scared -> enemy.enemy_state <- Active
+        | _ -> () ););
   cur_state
 
 let check_win cur_state =

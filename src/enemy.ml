@@ -7,17 +7,18 @@ type enemy_state = Active | Scared | Dead
 type enemy = {
     mutable position : float * float;
     mutable enemy_state : enemy_state;
-    mutable enemy_type: enemy_type;
+    enemy_type: enemy_type;
     mutable move_counter : int;
     mutable move_direction : int;
     mutable dead_timer : int;
     mutable sprite : int * int; 
+    mutable speed: float;
     init_pos : float * float;
 }
 
 type direction = Up | Down | Left | Right [@@deriving equal, compare, sexp]
 
-let enemy_resurrection_time = 100
+let enemy_resurrection_time = 400
 
 let match_dir_to_ind dir = 
   match dir with
@@ -112,6 +113,9 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
     | 2 -> List.nth_exn (List.nth_exn sprites 2) counter
     | 3 -> List.nth_exn (List.nth_exn sprites 3) counter
     | _ -> failwith "invalid direction"
+
+  let scared_speed = 0.02
+  let default_speed = 0.04
   
   let create (init_pos:(float * float)) : t =   
   {
@@ -121,13 +125,13 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
     move_counter = 0;
     move_direction = 0;
     dead_timer = 0;
+    speed = default_speed;
     sprite = get_sprite_by_dir 0 0 M.get_sprite;
     init_pos = init_pos;
   }
   
   let get_pos (e:t) : (float * float) = e.position  
 
-  let scared_speed = 0.02
     
   let update (cur_e : t) (player_pos : (float * float))  : t = 
     let next_counter = cur_e.move_counter + 1 in
@@ -165,6 +169,7 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
         cur_e.dead_timer <- cur_e.dead_timer + 1;
         if cur_e.dead_timer > enemy_resurrection_time then (
           cur_e.enemy_state <- Active;
+          cur_e.speed <- default_speed;
           cur_e.dead_timer <- 0);
         cur_e
 
@@ -175,7 +180,6 @@ module Set_red_enemy : SetEnemyType = struct
   (* Red enemy move randomly *)
   let get_enemytype = Red
   let get_sprite = [[(0, 4); (1, 4)]; [(2, 4); (3, 4)];  [(6, 4); (7, 4)]; [(4, 4); (5, 4)]]
-  let enemy_speed = 0.04
   let change_counter = ref 1
 
   let move (cur_e : t) (player_pos : (float * float)) : t =  
@@ -183,8 +187,8 @@ module Set_red_enemy : SetEnemyType = struct
       let selected_dir = (Random.self_init (); Random.int 4) in 
       let tempx, tempy = player_pos in
       let dx, dy = match_dir_to_ind selected_dir in
-      let next_x = (fst cur_e.position) +. (dx *. enemy_speed) +. 0.0 *. tempx in
-      let next_y = (snd cur_e.position) +. (dy *. enemy_speed) +. 0.0 *. tempy in             
+      let next_x = (fst cur_e.position) +. (dx *. cur_e.speed) +. 0.0 *. tempx in
+      let next_y = (snd cur_e.position) +. (dy *. cur_e.speed) +. 0.0 *. tempy in             
         if is_wall (next_x, next_y) then aux ()
         else 
           (cur_e.position <- check_collsion selected_dir (next_x, next_y);
@@ -193,8 +197,8 @@ module Set_red_enemy : SetEnemyType = struct
         in
     let d = cur_e.move_direction in
     let dx, dy = match_dir_to_ind d in
-    let next_x = (fst cur_e.position) +. (dx *. enemy_speed) in
-    let next_y = (snd cur_e.position) +. (dy *. enemy_speed) in
+    let next_x = (fst cur_e.position) +. (dx *. cur_e.speed) in
+    let next_y = (snd cur_e.position) +. (dy *. cur_e.speed) in
     if (!change_counter) mod 30 = 0 then 
       (change_counter := 1;
       aux ())
@@ -214,7 +218,6 @@ module Set_pink_enemy : SetEnemyType = struct
   (* Pink enemy move to the direction closest to pacman (Manhattan distance) every 50 renders *)
   let get_enemytype = Pink
   let get_sprite = [[(0, 5); (1, 5)]; [(2, 5); (3, 5)]; [(6, 5); (7, 5)];[(4, 5); (5, 5)]; ]
-  let enemy_speed = 0.04
   let change_counter = ref 1
 
   let get_distance (player_pos : float * float) (enemy_pos : float * float) : float =
@@ -244,8 +247,8 @@ module Set_pink_enemy : SetEnemyType = struct
         else match_dir_to_int (get_best_dir player_pos cur_e.position) 
       in
       let dx, dy = match_dir_to_ind selected_dir in
-      let next_x = (fst cur_e.position) +. (dx *. enemy_speed)  in
-      let next_y = (snd cur_e.position) +. (dy *. enemy_speed)  in
+      let next_x = (fst cur_e.position) +. (dx *. cur_e.speed)  in
+      let next_y = (snd cur_e.position) +. (dy *. cur_e.speed)  in
       if is_wall (next_x, next_y) then aux true
       else     
          (cur_e.position <- check_collsion selected_dir (next_x, next_y);
@@ -254,8 +257,8 @@ module Set_pink_enemy : SetEnemyType = struct
        in 
        let d = cur_e.move_direction in
        let dx, dy = match_dir_to_ind d in
-       let next_x = (fst cur_e.position) +. (dx *. enemy_speed) in
-       let next_y = (snd cur_e.position) +. (dy *. enemy_speed) in
+       let next_x = (fst cur_e.position) +. (dx *. cur_e.speed) in
+       let next_y = (snd cur_e.position) +. (dy *. cur_e.speed) in
        if (!change_counter) mod 50 = 0 then 
          (change_counter := 1;
           aux false)
@@ -366,13 +369,12 @@ module Set_blue_enemy : SetEnemyType = struct
   include BFS
   let get_enemytype = Blue
   let get_sprite = [[(0, 6); (1, 6)]; [(2, 6); (3, 6)]; [(6, 6); (7, 6)]; [(4, 6); (5, 6)]; ]
-  let enemy_speed = 0.04
 
   let move (cur_e : t) (player_pos : (float * float)) : t =  
       let selected_dir = match_dir_to_int (get_best_dir player_pos cur_e.position) in
       let dx, dy = match_dir_to_ind selected_dir in
-      let next_x = (fst cur_e.position) +. (dx *. enemy_speed)  in
-      let next_y = (snd cur_e.position) +. (dy *. enemy_speed)  in
+      let next_x = (fst cur_e.position) +. (dx *. cur_e.speed)  in
+      let next_y = (snd cur_e.position) +. (dy *. cur_e.speed)  in
          (cur_e.position <- check_collsion selected_dir (next_x, next_y);
          cur_e.move_direction <- selected_dir;
          cur_e)
@@ -384,19 +386,19 @@ module Set_orange_enemy : SetEnemyType = struct
   include BFS
   let get_enemytype = Orange
   let get_sprite =   [[(0, 7); (1, 7)]; [(2, 7); (3, 7)]; [(6, 7); (7, 7)]; [(4, 7); (5, 7)]; ]
-  let enemy_speed = ref 0.04
-
   let speed_timer = ref 1
+  let speed_limit = 0.085
 
   let move (cur_e : t) (player_pos : (float * float)) : t =  
     (if (!speed_timer) mod 50 = 0 then 
       ( speed_timer := 1;
-        enemy_speed := !enemy_speed +. 0.005;  )
+      if Float.(<=) cur_e.speed speed_limit then
+        cur_e.speed <- cur_e.speed +. 0.002;)
     else (speed_timer := !speed_timer + 1));
     let selected_dir = match_dir_to_int (get_best_dir player_pos cur_e.position) in
     let dx, dy = match_dir_to_ind selected_dir in
-    let next_x = (fst cur_e.position) +. (dx *. !enemy_speed)  in
-    let next_y = (snd cur_e.position) +. (dy *. !enemy_speed)  in
+    let next_x = (fst cur_e.position) +. (dx *. cur_e.speed)  in
+    let next_y = (snd cur_e.position) +. (dy *. cur_e.speed)  in
        cur_e.position <- check_collsion selected_dir (next_x, next_y);
        cur_e.move_direction <- selected_dir;
        cur_e
