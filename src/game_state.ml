@@ -40,11 +40,7 @@ let enemy_scared_time = 100
 
 (* get the scores when the ghost is eaten *)
 let get_ghost_score (ghosts_eaten : enemy_type) : int =
-  match ghosts_eaten with
-  | Red -> 20
-  | Blue -> 40
-  | Orange -> 50
-  | Pink -> 30
+  match ghosts_eaten with Red -> 20 | Blue -> 40 | Orange -> 50 | Pink -> 30
 
 let get_score state = state.score
 
@@ -156,10 +152,14 @@ let enemy_versus_fruit (enemy : enemy) (fruit : Fruit.t) (cur_state : t) : unit
     =
   if check_enemy_overlap fruit.position enemy then
     match fruit.fruit_state with
-    | Bullet ->
-        kill_enemy enemy;
-        cur_state.score <- cur_state.score + get_ghost_score enemy.enemy_type;
-        fruit.fruit_state <- Eaten
+    | Bullet -> (
+        match enemy.enemy_state with
+        | Active ->
+            kill_enemy enemy;
+            cur_state.score <-
+              cur_state.score + get_ghost_score enemy.enemy_type;
+            fruit.fruit_state <- Eaten
+        | _ -> ())
     | _ -> ()
 
 let enemies_versus_fruits (enemies : enemy list) (fruits : Fruit.t list)
@@ -183,10 +183,10 @@ let check_scared_time_state cur_state =
     cur_state.enemy_scared_timer <- 0;
     cur_state.enemy_scared <- false;
     cur_state.enemys
-      |> List.iter ~f:(fun enemy -> 
-        match enemy.enemy_state with
-        | Scared -> enemy.enemy_state <- Active
-        | _ -> () ););
+    |> List.iter ~f:(fun enemy ->
+           match enemy.enemy_state with
+           | Scared -> enemy.enemy_state <- Active
+           | _ -> ()));
   cur_state
 
 let check_win cur_state =
