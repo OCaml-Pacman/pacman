@@ -15,15 +15,7 @@
 (library
  (name render)
  (modules render)
- (libraries
-  core
-  ; objects
-  ; game_state
-  game_map
-  imagelib.unix
-  graphics
-  fruit
-  enemy)
+ (libraries core game_map imagelib.unix graphics fruit enemy)
  (preprocess
   (pps ppx_jane bisect_ppx)))
 
@@ -70,3 +62,5 @@
   core
   stdlib
   core_unix.command_unix))
+
+
