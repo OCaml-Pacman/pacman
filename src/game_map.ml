@@ -27,6 +27,7 @@ let load filename =
     | "#" -> Wall
     | "." -> Orb
     | "*" -> BigOrb
+    | "~" -> Ground
     | "R" -> Enemy Red
     | "B" -> Enemy Blue
     | "P" -> Enemy Pink
