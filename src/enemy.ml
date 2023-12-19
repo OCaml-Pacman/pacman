@@ -1,6 +1,7 @@
 open Core
 open Common
 
+exception InvalidDirection of int
 type enemy_type = Common.enemy_type
 type enemy_state = Active | Scared | Dead
 
@@ -26,7 +27,7 @@ let match_dir_to_ind dir =
   | 1 -> (-1.0, 0.0)
   | 2 -> (0.0, 1.0)
   | 3 -> (0.0, -1.0)
-  | _ -> failwith "invalid int of direction"
+  | _ -> raise (InvalidDirection dir)
 
 let helper_dir int_direction =
   match int_direction with
@@ -34,7 +35,7 @@ let helper_dir int_direction =
   | 1 -> Left
   | 2 -> Down
   | 3 -> Up
-  | _ -> failwith "invalid int of direction"
+  | _ -> raise (InvalidDirection int_direction)
 
 let match_dir_to_int direction =
   match direction with Right -> 0 | Left -> 1 | Down -> 2 | Up -> 3
@@ -111,7 +112,7 @@ module MakeEnemy (M : SetEnemyType) : Enemy = struct
     | 1 -> List.nth_exn (List.nth_exn sprites 1) counter
     | 2 -> List.nth_exn (List.nth_exn sprites 2) counter
     | 3 -> List.nth_exn (List.nth_exn sprites 3) counter
-    | _ -> failwith "invalid direction"
+    | _ -> raise (InvalidDirection d)
 
   let scared_speed = 0.02
   let default_speed = 0.04

@@ -119,6 +119,15 @@ let test_update_enemy_red _ =
   assert_equal true
   @@ Float.( = ) (1.0 +. enemy_speed) (fst updated_enemy.position);
 
+  assert_equal (0, 4) @@ get_enemy_sprite_by_type Red;
+  assert_equal (0, 5) @@ get_enemy_sprite_by_type Pink;
+  assert_equal (0, 6) @@ get_enemy_sprite_by_type Blue;
+  assert_equal (0, 7) @@ get_enemy_sprite_by_type Orange;
+
+  updated_enemy.move_direction <- 5;
+  assert_raises (InvalidDirection 5) (fun () -> Red_enemy.update test_enemy1 (0.0, 0.0));
+
+
   let test_enemy2 = Red_enemy.create (1.0, 1.0) in
   test_enemy2.enemy_state <- Scared;
   let updated_enemy2 = Red_enemy.update test_enemy2 (0.0, 0.0) in
@@ -137,7 +146,9 @@ let test_update_enemy_red _ =
   test_enemy4.move_direction <- 1;
   test_enemy4.speed <- 0.5;
   let updated_enemy4 = Red_enemy.update test_enemy4 (0.0, 0.0) in
-  assert_equal 0 @@ updated_enemy4.move_direction
+  assert_equal 0 @@ updated_enemy4.move_direction;
+  updated_enemy.dead_timer <- 401;
+  assert_equal 0 @@ updated_enemy4.dead_timer
   
 
 let test_update_enemy_pink _ =

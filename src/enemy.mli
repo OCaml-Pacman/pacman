@@ -2,6 +2,7 @@
 
 (** The [enemy_type] type represents the different types of enemies. *)
 type enemy_type = Common.enemy_type
+exception InvalidDirection of int
 
 
 (** The [enemy_state] type represents the current state of an enemy. *)
