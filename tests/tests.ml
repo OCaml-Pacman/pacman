@@ -100,7 +100,7 @@ let player_tests =
        ]
 
 (* Enemy Test *)
-let test_update_enemy _ =
+let test_update_enemy_red _ =
   let test_map_data =
     ref
       [|
@@ -130,15 +130,75 @@ let test_update_enemy _ =
   let test_enemy3 = Red_enemy.create (1.0, 1.0) in
   test_enemy3.enemy_state <- Dead;
   let updated_enemy3 = Red_enemy.update test_enemy3 (0.0, 0.0) in
-  assert_equal true @@ Float.( = ) 1.0 (fst updated_enemy3.position)
+  assert_equal true @@ Float.( = ) 1.0 (fst updated_enemy3.position);
 
-(* let test_enemy4 = Red_enemy.create (1.0, 1.0) in
-   test_enemy4.move_direction <- 1;
-   let updated_enemy4 = Red_enemy.update test_enemy4 (0.0, 0.0) in
-   assert_equal 2 @@ updated_enemy4.move_direction *)
+
+  let test_enemy4 = Red_enemy.create (1.0, 1.0) in
+  test_enemy4.move_direction <- 1;
+  test_enemy4.speed <- 0.5;
+  let updated_enemy4 = Red_enemy.update test_enemy4 (0.0, 0.0) in
+  assert_equal 0 @@ updated_enemy4.move_direction
+  
+
+let test_update_enemy_pink _ =
+  let test_map_data =
+    ref
+      [|
+        [| Wall; Wall; Wall; Wall |];
+        [| Wall; Ground; Ground; Wall |];
+        [| Wall; Player; Ground; Wall |];
+        [| Wall; Wall; Wall; Wall |];
+      |]
+  in
+  load_from_data test_map_data;
+  let test_enemy1 = Pink_enemy.create (1.0, 1.0) in
+  let updated_enemy = ref (Pink_enemy.update test_enemy1 (1.0, 2.0)) in
+  for _ = 1 to 48 do
+    updated_enemy := Pink_enemy.update !updated_enemy (1.0, 2.0)
+  done;
+  (!updated_enemy).position <- (1.0, 1.0);
+  (!updated_enemy).move_direction <- 0;
+  updated_enemy := Pink_enemy.update !updated_enemy (1.0, 2.0);
+  assert_equal 2 @@ (!updated_enemy).move_direction
+
+let test_update_enemy_blue _ =
+  let test_map_data =
+    ref
+      [|
+        [| Wall; Wall; Wall; Wall;Wall |];
+        [| Wall; Ground; Ground; Ground;Wall |];
+        [| Wall; Ground; Ground; Ground;Wall |];
+        [| Wall; Ground; Wall; Wall;Wall |];
+        [| Wall; Ground; Ground; Player;Wall |];
+        [| Wall; Wall; Wall; Wall;Wall |];
+      |]
+  in
+  load_from_data test_map_data;
+  let test_enemy1 = Blue_enemy.create (1.0, 1.0) in
+  let updated_enemy = Blue_enemy.update test_enemy1 (3.0, 4.0) in
+  assert_equal 2 @@ updated_enemy.move_direction
+
+let test_update_enemy_orange _ =
+  let test_enemy1 = Orange_enemy.create (1.0, 1.0) in
+  let updated_enemy = ref (Orange_enemy.update test_enemy1 (1.0, 2.0)) in
+  for _ = 1 to 51 do
+    updated_enemy := Orange_enemy.update !updated_enemy (1.0, 2.0)
+  done;
+  assert_equal true @@ Float.(=.) 0.042 !updated_enemy.speed;
+  for _ = 1 to 2000 do
+    updated_enemy := Orange_enemy.update !updated_enemy (1.0, 2.0)
+  done;
+  assert_equal true @@ Float.(=.) 0.086 !updated_enemy.speed
+
 
 let enemy_tests =
-  "Enemy Tests" >: test_list [ "test enemy" >:: test_update_enemy ]
+  "Enemy Tests" >: test_list [ 
+    "test enemy red" >:: test_update_enemy_red;
+  "test enemy pink" >:: test_update_enemy_pink;
+  "test enemy blue" >:: test_update_enemy_blue;
+  "test enemy orange" >:: test_update_enemy_orange;
+
+   ]
 
 let create_file_with_content filename content =
   Out_channel.with_file filename ~f:(fun oc ->
@@ -242,6 +302,7 @@ let test_shot_cherry_to_wall _ =
   let game = wait_for_frame game 10 in
   assert_equal (List.length game.fruits) @@ 0
 
+
 let test_shot_strawberry_to_wall _ =
   let test_map_data =
     ref
@@ -317,6 +378,11 @@ let game_state_tests =
        ]
 
 let series =
-  "Pacman Tests" >::: [ player_tests; enemy_tests; map_tests; game_state_tests ]
+  "Pacman Tests" >::: [ 
+    player_tests; 
+    enemy_tests; 
+    map_tests; 
+    game_state_tests
+     ]
 
 let () = run_test_tt_main series
