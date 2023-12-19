@@ -118,7 +118,11 @@ let check_object_overlap (cur_player : Player.t) (cur_state : t) =
       change_location judgeP Ground
   | BigOrb ->
       cur_state.enemys
-      |> List.iter ~f:(fun enemy -> enemy.enemy_state <- Scared);
+      |> List.iter ~f:(fun enemy -> 
+        match enemy.enemy_state with
+        | Active ->
+        enemy.enemy_state <- Scared;
+        | _ -> ());
       cur_state.enemy_scared <- true;
       change_location judgeP Ground
   | _ -> ()
