@@ -3,6 +3,9 @@ Ocaml PacMan Revamped
 
 PacMan Revamped is an OCaml-based twist on the classic PacMan game. In this version, players collect orbs and can throw fruits as weapons to hit ghosts, adding a strategic layer to the traditional gameplay.
 
+![Screenshot 2023-12-18 at 2 38 57 AM](https://github.com/OCaml-Pacman/pacman/assets/71415495/b394de1d-b49d-4b62-bceb-5c3dcdaedb77)
+
+
 Getting Started
 ---------------
 
