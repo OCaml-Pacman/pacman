@@ -122,9 +122,9 @@ let update_fruit_bullet (player : t) (key : key) =
               1.0
           in
           if not (is_wall bullet_pos) then (
-          fruit.position <- bullet_pos;
-          fruit.move_direction <- player.move_direction;
-          fruit.fruit_state <- Bullet;
+            fruit.position <- bullet_pos;
+            fruit.move_direction <- player.move_direction;
+            fruit.fruit_state <- Bullet;
             player.fruit_bullet <- Some fruit;
             player.fruits <- tail;
             match tail with _ :: _ -> () | [] -> player.player_state <- Alive)
@@ -154,6 +154,8 @@ let check_alive (player : t) : bool =
 let get_sprite (player : t) : int * int = player.sprite
 
 let eat_fruit (player : t) (fruit : fruit) =
-  fruit.position <- (Float.of_int (9 + List.length player.fruits),-1.0);
+  let x_max, _ = Game_map.get_size () in
+  fruit.position <-
+    (x_max -. 4.0 +. Float.of_int (List.length player.fruits), -1.0);
   player.fruits <- fruit :: player.fruits;
   player.player_state <- Armed
