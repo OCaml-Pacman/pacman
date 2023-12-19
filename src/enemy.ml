@@ -51,11 +51,11 @@ let get_enemy_sprite_by_type enemy =
   | Orange -> (0,7)
 
 let kill_enemy enemy =
-  match enemy.enemy_state with 
-  | Active -> 
-    (enemy.enemy_state <- Dead;
-    enemy.dead_timer <- 0;)
-  | _ -> ()
+  match enemy.enemy_state with
+  | Dead -> ()
+  | _ ->
+      enemy.enemy_state <- Dead;
+      enemy.dead_timer <- 0
   
 let check_collsion int_direction pos = 
   let direction = helper_dir int_direction in 
