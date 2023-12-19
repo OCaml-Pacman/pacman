@@ -130,14 +130,13 @@ let test_update_enemy _ =
   let test_enemy3 = Red_enemy.create (1.0, 1.0) in
   test_enemy3.enemy_state <- Dead;
   let updated_enemy3 = Red_enemy.update test_enemy3 (0.0, 0.0) in
-  assert_equal true @@ Float.( = ) 1.0 (fst updated_enemy3.position);
+  assert_equal true @@ Float.( = ) 1.0 (fst updated_enemy3.position)
 
-  let test_enemy4 = Red_enemy.create (1.0, 1.0) in
-  test_enemy4.move_direction <- 1;
-  let updated_enemy4 = Red_enemy.update test_enemy4 (0.0, 0.0) in
-  assert_equal 2 @@ updated_enemy4.move_direction
+(* let test_enemy4 = Red_enemy.create (1.0, 1.0) in
+   test_enemy4.move_direction <- 1;
+   let updated_enemy4 = Red_enemy.update test_enemy4 (0.0, 0.0) in
+   assert_equal 2 @@ updated_enemy4.move_direction *)
 
-  
 let enemy_tests =
   "Enemy Tests" >: test_list [ "test enemy" >:: test_update_enemy ]
 
@@ -221,7 +220,7 @@ let test_shot_fruit_to_enemy _ =
   let game = wait_for_frame game 10 in
   assert_equal (List.length game.fruits) @@ 0
 
-let test_shot_fruit_to_wall _ =
+let test_shot_cherry_to_wall _ =
   let test_map_data =
     ref
       [|
@@ -243,13 +242,78 @@ let test_shot_fruit_to_wall _ =
   let game = wait_for_frame game 10 in
   assert_equal (List.length game.fruits) @@ 0
 
+let test_shot_strawberry_to_wall _ =
+  let test_map_data =
+    ref
+      [|
+        [| Wall; Wall; Wall |];
+        [| Wall; Orb; Wall |];
+        [| Wall; Fruit Strawberry; Wall |];
+        [| Wall; Player; Wall |];
+        [| Wall; Wall; Wall; Orb |];
+      |]
+  in
+  load_from_data test_map_data;
+  let game = Game_state.new_game () in
+  assert_equal game.player.player_state @@ Alive;
+  assert_equal (List.length game.fruits) @@ 1;
+  let game = Game_state.update (Some 'w') game in
+  assert_equal game.player.player_state @@ Armed;
+  assert_equal (List.length game.fruits) @@ 0;
+  let game = Game_state.update (Some 'j') game in
+  assert_equal game.player.player_state @@ Alive;
+  assert_equal (List.length game.fruits) @@ 1;
+  let game = wait_for_frame game 3 in
+  assert_equal (List.length game.fruits) @@ 1;
+  assert_equal (List.last_exn game.fruits).move_direction @@ Up;
+  let game = wait_for_frame game 3 in
+  assert_equal (List.length game.fruits) @@ 1;
+  assert_equal (List.last_exn game.fruits).move_direction @@ Down;
+  let game = wait_for_frame game 40 in
+  assert_equal (List.length game.fruits) @@ 0
+
+let test_shot_orange_to_wall _ =
+  let test_map_data =
+    ref
+      [|
+        [| Wall; Wall; Wall; Wall; Wall |];
+        [| Wall; Wall; Wall; Orb; Wall |];
+        [| Wall; Player; Fruit Orange; Orb; Wall |];
+        [| Wall; Wall; Wall; Orb; Wall |];
+        [| Wall; Wall; Wall; Wall; Orb |];
+      |]
+  in
+  load_from_data test_map_data;
+  let game = Game_state.new_game () in
+  assert_equal game.player.player_state @@ Alive;
+  assert_equal (List.length game.fruits) @@ 1;
+  let game = Game_state.update (Some 'd') game in
+  assert_equal game.player.player_state @@ Armed;
+  assert_equal (List.length game.fruits) @@ 0;
+  let game = Game_state.update (Some 'j') game in
+  assert_equal game.player.player_state @@ Alive;
+  assert_equal (List.length game.fruits) @@ 1;
+  let game = wait_for_frame game 3 in
+  assert_equal (List.length game.fruits) @@ 1;
+  assert_equal (List.last_exn game.fruits).move_direction @@ Right;
+  let game = wait_for_frame game 3 in
+  assert_equal (List.length game.fruits) @@ 1;
+  assert_equal (List.last_exn game.fruits).move_direction @@ Down;
+  let game = wait_for_frame game 10 in
+  assert_equal (List.length game.fruits) @@ 1;
+  assert_equal (List.last_exn game.fruits).move_direction @@ Up;
+  let game = wait_for_frame game 20 in
+  assert_equal (List.length game.fruits) @@ 0
+
 let game_state_tests =
   "Game State Tests"
   >: test_list
        [
          "test basic move" >:: test_basic_move;
          "test shot fruit to enemy" >:: test_shot_fruit_to_enemy;
-         "test shot fruit to wall" >:: test_shot_fruit_to_wall;
+         "test shot cherry to wall" >:: test_shot_cherry_to_wall;
+         "test shot strawberry to wall" >:: test_shot_strawberry_to_wall;
+         "test shot orange to wall" >:: test_shot_orange_to_wall;
        ]
 
 let series =

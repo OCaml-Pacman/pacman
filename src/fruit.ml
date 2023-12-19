@@ -98,7 +98,7 @@ let orange_hit_wall (fruit : t) : unit =
       | Some new_pos -> fruit.position <- new_pos
       | None -> fruit.move_direction <- turn_left fruit.move_direction));
   fruit.hit_counter <- fruit.hit_counter + 1;
-  if fruit.hit_counter > 5 then (
+  if fruit.hit_counter > 2 then (
     fruit.fruit_state <- Eaten;
     fruit.hit_counter <- 0)
 

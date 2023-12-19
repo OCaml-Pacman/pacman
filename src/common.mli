@@ -11,6 +11,7 @@ type direction =
   | Down  (** Represents moving down. *)
   | Left  (** Represents moving left. *)
   | Right  (** Represents moving right. *)
+[@@deriving equal]
 
 (** The [enemy_type] type represents the different types of enemies. *)
 type enemy_type =
